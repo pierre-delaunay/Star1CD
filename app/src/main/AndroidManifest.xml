@@ -16,6 +16,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <meta-data android:name="fr.istic.mob.star1cd.messaging.default_notification_icon"
+            android:resource="@drawable/ic_notification_version" />
     </application>
 
 </manifest>

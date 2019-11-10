@@ -24,7 +24,6 @@ public class MainActivity extends AppCompatActivity {
             "https://data.explore.star.fr/explore/dataset/tco-busmetro-horaires-gtfs-versions-td/download/?format=json&timezone=Europe/Berlin";
 
     private ProgressBar progressBar;
-    private NotificationManagerCompat notificationManagerCompat;
     public static final String CHANNEL_ID = "channel_id";
     public static final String CHANNEL_NAME = "Notification Channel";
 
@@ -33,10 +32,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        createNotificationChannel();
         databaseHelper = new DatabaseHelper(this);
         database = databaseHelper.getWritableDatabase();
         progressBar = findViewById(R.id.progressBar);
-        notificationManagerCompat = NotificationManagerCompat.from(this);
     }
 
 
@@ -45,9 +44,8 @@ public class MainActivity extends AppCompatActivity {
      */
     private void createNotificationChannel(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = "Notification channel";
             int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, importance);
             channel.setDescription("Notification channel description");
 
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
@@ -64,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
         NotificationCompat.Builder notifBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle(getResources().getString(R.string.app_name))
                 .setContentText(getResources().getString(R.string.new_version_available))
-                .setSmallIcon(R.drawable.icon_star_app)
+                .setSmallIcon(R.drawable.ic_notification_version)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
         notificationManager.notify(1, notifBuilder.build());
