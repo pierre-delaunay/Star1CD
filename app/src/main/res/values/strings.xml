@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Star1CD</string>
+
+    <string name="hint_selected_date">Choisir une date</string>
+    <string name="hint_selected_hour">Choisir une heure</string>
+    <string name="choose">Choisir</string>
+    <string name="pick_bus_line">Choisir la ligne de bus</string>
+    <string name="pick_bus_direction">Choisir la direction</string>
+    <string name="search">Rechercher</string>
+    <string name="new_version_available">Nouvelle version disponible</string>
+</resources>
