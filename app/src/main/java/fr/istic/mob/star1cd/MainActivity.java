@@ -6,15 +6,22 @@ import androidx.core.app.NotificationManagerCompat;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 
 import java.util.Objects;
 
 import fr.istic.mob.star1cd.database.DatabaseHelper;
+import fr.istic.mob.star1cd.utils.DownloadAsyncTask;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -38,6 +45,39 @@ public class MainActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
     }
 
+    /**
+     * isNetworkAvailable
+     * @param context Context
+     * @return boolean, true if network available
+     */
+    public boolean isNetworkAvailable(Context context){
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Network activeNetwork = connectivityManager.getActiveNetwork();
+            NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork);
+            if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) { return true; }
+            if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) { return true; }
+            if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) { return true; }
+            return false;
+        } else {
+            // getActiveNetworkInfo is deprecated on API 29
+            NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+            return  activeNetworkInfo.isConnected();
+        }
+    }
+
+    /**
+     * Download file from web
+     * @param url String
+     */
+    public void downloadFileFromWeb(String url) {
+        if (isNetworkAvailable(this)) {
+            new DownloadAsyncTask(this, "a.txt").execute(url);
+        }
+        else {
+            Log.e("Download", "Connexion réseau indisponible.");
+        }
+    }
 
     /**
      * Create notification channel, API 26+
