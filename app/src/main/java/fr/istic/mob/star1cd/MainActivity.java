@@ -49,11 +49,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         createNotificationChannel();
-        databaseHelper = new DatabaseHelper(this);
-        database = databaseHelper.getWritableDatabase();
         progressBar = findViewById(R.id.progressBar);
 
-        downloadFileFromWeb(URL_VERSION);
+        if (isNetworkAvailable(this)) {
+            //downloadFileFromWeb(URL_VERSION);
+        }
     }
 
     /**
