@@ -5,10 +5,20 @@ public class BusRoute {
     private int id;
     private String routeShortName;
     private String routeLongName;
-    private String routeDescritpion;
-    private String routetype;
+    private String routeDescription;
+    private String routeType;
     private String routeColor;
     private String routeTextColor;
+
+    public BusRoute(int id, String routeShortName, String routeLongName, String routeDescription, String routeType, String routeColor, String routeTextColor) {
+        this.id = id;
+        this.routeShortName = routeShortName;
+        this.routeLongName = routeLongName;
+        this.routeDescription = routeDescription;
+        this.routeType = routeType;
+        this.routeColor = routeColor;
+        this.routeTextColor = routeTextColor;
+    }
 
     public int getId() {
         return id;
@@ -34,20 +44,20 @@ public class BusRoute {
         this.routeLongName = routeLongName;
     }
 
-    public String getRouteDescritpion() {
-        return routeDescritpion;
+    public String getRouteDescription() {
+        return routeDescription;
     }
 
-    public void setRouteDescritpion(String routeDescritpion) {
-        this.routeDescritpion = routeDescritpion;
+    public void setRouteDescription(String routeDescription) {
+        this.routeDescription = routeDescription;
     }
 
-    public String getRoutetype() {
-        return routetype;
+    public String getRouteType() {
+        return routeType;
     }
 
-    public void setRoutetype(String routetype) {
-        this.routetype = routetype;
+    public void setRouteType(String routeType) {
+        this.routeType = routeType;
     }
 
     public String getRouteColor() {

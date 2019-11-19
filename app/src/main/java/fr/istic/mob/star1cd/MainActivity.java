@@ -27,7 +27,6 @@ import java.util.Objects;
 
 import fr.istic.mob.star1cd.database.DatabaseHelper;
 import fr.istic.mob.star1cd.services.StarService;
-import fr.istic.mob.star1cd.utils.DownloadAsyncTask;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -51,16 +50,17 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         createNotificationChannel();
-        progressBar = findViewById(R.id.progressBar);
+        this.progressBar = findViewById(R.id.progressBar);
+        this.databaseHelper = new DatabaseHelper(this);
+        this.database = databaseHelper.getWritableDatabase();
 
         if (isNetworkAvailable(this)) {
+            verifyStoragePermissions(this);
             Log.i("StarService", "Network is available");
             Intent intent = new Intent(Intent.ACTION_SYNC, null, this, StarService.class);
             intent.putExtra("url", URL_VERSION);
             startService(intent);
-
         }
-
     }
 
     /**
@@ -81,21 +81,6 @@ public class MainActivity extends AppCompatActivity {
             // getActiveNetworkInfo is deprecated on API 29
             NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
             return  activeNetworkInfo.isConnected();
-        }
-    }
-
-    /**
-     * Download file from web
-     * @param url String
-     */
-    public void downloadFileFromWeb(String url) {
-        verifyStoragePermissions(this);
-
-        if (isNetworkAvailable(this)) {
-            new DownloadAsyncTask(this, "file.json").execute(url);
-        }
-        else {
-            Log.e("Download", "Connexion réseau indisponible.");
         }
     }
 

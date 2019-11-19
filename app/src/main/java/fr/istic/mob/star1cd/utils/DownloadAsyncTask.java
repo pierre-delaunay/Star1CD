@@ -18,6 +18,10 @@ public class DownloadAsyncTask extends AsyncTask<String, String, String> {
 
     private String file;
 
+    public DownloadAsyncTask() {
+
+    }
+
     public DownloadAsyncTask(Activity activity, String fileName) {
         this.file = fileName;
     }
@@ -32,7 +36,12 @@ public class DownloadAsyncTask extends AsyncTask<String, String, String> {
 
         int count;
         try {
-            String root = Environment.getExternalStorageDirectory().toString();
+            String root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).toString();
+
+            final File f = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), "Star");
+            if (!f.exists()) {
+                f.mkdir();
+            }
 
             Log.i("AsyncTask", "Downloading");
             URL url = new URL(strings[0]);
@@ -40,18 +49,17 @@ public class DownloadAsyncTask extends AsyncTask<String, String, String> {
             HttpURLConnection urlConnection = (HttpURLConnection)  url.openConnection();
             urlConnection.connect();
 
-
             // getting file length
             int lenghtOfFile = urlConnection.getContentLength();
             Log.i("AsyncTask", String.valueOf(lenghtOfFile));
 
             // input stream to read file - with 8k buffer
             InputStream input = new BufferedInputStream(url.openStream(), 8192);
-            //InputStream input = urlConnection.getInputStream();
+
 
             // Output stream to write file
 
-            OutputStream output = new FileOutputStream(root + "/file.json");
+            OutputStream output = new FileOutputStream(root + "/Star/star.zip");
             byte data[] = new byte[1024];
 
             long total = 0;

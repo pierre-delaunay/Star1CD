@@ -3,6 +3,7 @@ package fr.istic.mob.star1cd.services;
 import android.app.IntentService;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Environment;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
@@ -12,15 +13,27 @@ import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import fr.istic.mob.star1cd.database.DataSource;
 import fr.istic.mob.star1cd.database.DatabaseHelper;
+import fr.istic.mob.star1cd.database.model.BusRoute;
+import fr.istic.mob.star1cd.utils.DownloadAsyncTask;
+import fr.istic.mob.star1cd.utils.ZipManager;
 
 public class StarService extends IntentService {
 
@@ -30,6 +43,8 @@ public class StarService extends IntentService {
     private int statusCode;
     private InputStream inputStream;
     private HttpURLConnection urlConnection;
+    private final static String zipPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).toString() + "/Star/";
+    private final static String zipFileName = "star.zip";
 
     /**
      * Creates an IntentService.  Invoked by your subclass's constructor.
@@ -71,12 +86,11 @@ public class StarService extends IntentService {
                 urlZip = jsonObject.getString("url");
                 Log.i("StarService", urlZip);
 
-                // PROGRESS BAR https://stackoverflow.com/questions/45373007/progressdialog-is-deprecated-what-is-the-alternate-one-to-use
-                // http://www.androiddeft.com/android-download-file-from-url-with-progress-bar/
-
-                //statusCode = statusCodeFromJsonRequest(urlZip);
-                //Log.i("StarService", "Status code ZIP file : " + String.valueOf(statusCode));
                 //downloadZip(urlZip);
+
+                //ZipManager.unzip(zipPath + zipFileName, zipPath);
+
+                readTxtFile("routes.txt");
             }
 
         } catch (Exception e) {
@@ -85,9 +99,52 @@ public class StarService extends IntentService {
 
     }
 
+    /**
+     * Download the zip archive and store it in external storage (path : /DCIM/Star/)
+     * @param url String 'http://ftp.keolis-rennes.com[...]'
+     */
     private void downloadZip(String url) {
         try {
             URL urlDownloadZip = new URL(url);
+
+            String root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).toString();
+
+            final File f = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), "Star");
+            if (!f.exists()) {
+                f.mkdir();
+            }
+
+            HttpURLConnection urlConnection = (HttpURLConnection)  urlDownloadZip.openConnection();
+            urlConnection.connect();
+
+            // getting file length
+            int lenghtOfFile = urlConnection.getContentLength();
+            Log.i("AsyncTask", String.valueOf(lenghtOfFile));
+
+            // input stream to read file - with 8k buffer
+            InputStream input = new BufferedInputStream(urlDownloadZip.openStream(), 8192);
+
+
+            // Output stream to write file
+            OutputStream output = new FileOutputStream(zipPath + zipFileName);
+            byte data[] = new byte[1024];
+
+            int count;
+            long total = 0;
+            while ((count = input.read(data)) != -1) {
+                total += count;
+
+                // writing data to file
+                output.write(data, 0, count);
+
+            }
+
+            // flushing output
+            output.flush();
+
+            // closing streams
+            output.close();
+            input.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -106,7 +163,7 @@ public class StarService extends IntentService {
             urlConnection.setRequestProperty("Accept", "application/json");
             urlConnection.setRequestMethod("GET");
             return urlConnection.getResponseCode();
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return -1;
@@ -156,4 +213,52 @@ public class StarService extends IntentService {
         }
         return false;
     }
+
+    private void readTxtFile(String fileName) {
+
+        File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).toString() + "/Star/");
+
+        if (dir.exists()) {
+            File file = new File(dir, fileName);
+            FileOutputStream os = null;
+            StringBuilder text = new StringBuilder();
+            try {
+                BufferedReader br = new BufferedReader(new FileReader(file));
+                String line;
+                br.readLine(); // skip first line
+                DataSource dataSource = new DataSource(this);
+                int id = 1;
+                while ((line = br.readLine()) != null){
+                    //text.append(line.replace("\"", ""));
+                    //text.append('\n');
+                    String tmp[] = line.replace("\"", "").split(",");
+                    //Log.i("BDD", "size of " + tmp.length);
+                    insertLineInDB(id, dataSource, tmp, fileName);
+                    //text.append(tmp[2]);
+                    //text.append('\n');
+                    id++;
+                }
+                br.close();
+            } catch (IOException e) {
+
+            }
+            Log.i("readTxtFile", text.toString());
+        }
+
+    }
+
+    private void insertLineInDB(Integer id, DataSource dataSource, String line[], String fileName) {
+
+        switch (fileName) {
+            case "routes.txt" :
+                if (!(line.length == 10)) {
+                    BusRoute busRoute = new BusRoute(id, line[2], line[3], line[4], line[5], line[7], line[8]);
+                    //dataSource.insertBusRoute(busRoute);
+                }
+
+                break;
+        }
+    }
+
+
 }
