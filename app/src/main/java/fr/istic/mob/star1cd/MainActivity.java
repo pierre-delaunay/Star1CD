@@ -10,6 +10,7 @@ import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
@@ -25,6 +26,7 @@ import android.widget.ProgressBar;
 import java.util.Objects;
 
 import fr.istic.mob.star1cd.database.DatabaseHelper;
+import fr.istic.mob.star1cd.services.StarService;
 import fr.istic.mob.star1cd.utils.DownloadAsyncTask;
 
 public class MainActivity extends AppCompatActivity {
@@ -52,8 +54,13 @@ public class MainActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
 
         if (isNetworkAvailable(this)) {
-            //downloadFileFromWeb(URL_VERSION);
+            Log.i("StarService", "Network is available");
+            Intent intent = new Intent(Intent.ACTION_SYNC, null, this, StarService.class);
+            intent.putExtra("url", URL_VERSION);
+            startService(intent);
+
         }
+
     }
 
     /**

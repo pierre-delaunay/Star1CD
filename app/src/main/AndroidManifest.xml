@@ -24,6 +24,8 @@
         </activity>
         <meta-data android:name="fr.istic.mob.star1cd.messaging.default_notification_icon"
             android:resource="@drawable/ic_notification_version" />
+        <service android:enabled="true" android:name="fr.istic.mob.star1cd.services.StarService"
+            android:label="@string/app_name"/>
     </application>
 
 </manifest>
