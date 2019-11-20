@@ -10,14 +10,8 @@ public class BusRoute {
     private String routeColor;
     private String routeTextColor;
 
-    public BusRoute(int id, String routeShortName, String routeLongName, String routeDescription, String routeType, String routeColor, String routeTextColor) {
-        this.id = id;
-        this.routeShortName = routeShortName;
-        this.routeLongName = routeLongName;
-        this.routeDescription = routeDescription;
-        this.routeType = routeType;
-        this.routeColor = routeColor;
-        this.routeTextColor = routeTextColor;
+    public BusRoute() {
+
     }
 
     public int getId() {

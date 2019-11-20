@@ -7,6 +7,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
+    private static DatabaseHelper mInstance = null;
+
     private static final String DATABASE_NAME = "star.db";
     private static final int DATABASE_VERSION = 1;
     private static final String TABLE_BUS_ROUTE = StarContract.BusRoutes.CONTENT_PATH;
@@ -61,11 +63,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             StarContract.Calendar.CalendarColumns.START_DATE+" INTEGER," +
             StarContract.Calendar.CalendarColumns.END_DATE +" INTEGER );";
 
+
+    /**
+     * Abstract Factory
+     * @param ctx
+     * @return
+     */
+    public static DatabaseHelper getInstance(Context ctx) {
+        if (mInstance == null) {
+            mInstance = new DatabaseHelper(ctx.getApplicationContext());
+        }
+        return mInstance;
+    }
+
     /**
      * DatabaseHelper constructor
      * @param context Context
      */
-    public DatabaseHelper(Context context) {
+    private DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         context.openOrCreateDatabase(DATABASE_NAME, Context.MODE_PRIVATE, null);
     }

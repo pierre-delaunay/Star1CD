@@ -13,6 +13,9 @@ public class Calendar {
     private int startDate;
     private int endDate;
 
+    public Calendar() {
+    }
+
     public int getId() {
         return id;
     }

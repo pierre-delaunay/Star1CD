@@ -17,7 +17,7 @@ public class DataSource {
     private DatabaseHelper databaseHelper;
 
     public DataSource(Context context) {
-        this.databaseHelper = new DatabaseHelper(context);
+        this.databaseHelper = DatabaseHelper.getInstance(context);
         open();
     }
 

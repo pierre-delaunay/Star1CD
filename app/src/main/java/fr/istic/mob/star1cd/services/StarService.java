@@ -32,6 +32,9 @@ import java.util.List;
 import fr.istic.mob.star1cd.database.DataSource;
 import fr.istic.mob.star1cd.database.DatabaseHelper;
 import fr.istic.mob.star1cd.database.model.BusRoute;
+import fr.istic.mob.star1cd.database.model.Calendar;
+import fr.istic.mob.star1cd.database.model.Stop;
+import fr.istic.mob.star1cd.database.model.Trip;
 import fr.istic.mob.star1cd.utils.DownloadAsyncTask;
 import fr.istic.mob.star1cd.utils.ZipManager;
 
@@ -90,7 +93,7 @@ public class StarService extends IntentService {
 
                 //ZipManager.unzip(zipPath + zipFileName, zipPath);
 
-                readTxtFile("routes.txt");
+                //readTxtFile("routes.txt");
             }
 
         } catch (Exception e) {
@@ -228,6 +231,9 @@ public class StarService extends IntentService {
                 br.readLine(); // skip first line
                 DataSource dataSource = new DataSource(this);
                 int id = 1;
+                databaseHelper = DatabaseHelper.getInstance(this);
+                database = databaseHelper.getWritableDatabase();
+                //database.beginTransaction(); // db performance
                 while ((line = br.readLine()) != null){
                     //text.append(line.replace("\"", ""));
                     //text.append('\n');
@@ -239,6 +245,9 @@ public class StarService extends IntentService {
                     id++;
                 }
                 br.close();
+
+                //database.setTransactionSuccessful(); // db performance
+                //database.endTransaction(); // db performance
             } catch (IOException e) {
 
             }
@@ -251,11 +260,58 @@ public class StarService extends IntentService {
 
         switch (fileName) {
             case "routes.txt" :
-                if (!(line.length == 10)) {
-                    BusRoute busRoute = new BusRoute(id, line[2], line[3], line[4], line[5], line[7], line[8]);
-                    //dataSource.insertBusRoute(busRoute);
-                }
+                // insert OK
+                BusRoute busRoute = new BusRoute();
+                busRoute.setId(id);
+                busRoute.setRouteShortName(line[2]);
+                busRoute.setRouteLongName(line[3]);
+                busRoute.setRouteDescription(line[4]);
+                busRoute.setRouteType(line[5]);
+                busRoute.setRouteColor(line[7]);
+                busRoute.setRouteTextColor(line[8]);
+                dataSource.insertBusRoute(busRoute);
 
+                break;
+            case "calendar.txt" :
+                // insert OK
+                Calendar calendar = new Calendar();
+                calendar.setId(Integer.valueOf(line[0]));
+                calendar.setMonday(Integer.valueOf(line[1]));
+                calendar.setTuesday(Integer.valueOf(line[2]));
+                calendar.setWednesday(Integer.valueOf(line[3]));
+                calendar.setThursday(Integer.valueOf(line[4]));
+                calendar.setFriday(Integer.valueOf(line[5]));
+                calendar.setSaturday(Integer.valueOf(line[6]));
+                calendar.setSunday(Integer.valueOf(line[7]));
+                calendar.setStartDate(Integer.valueOf(line[8]));
+                calendar.setEndDate(Integer.valueOf(line[9]));
+                dataSource.insertCalendar(calendar);
+
+                break;
+            case "stop_times.txt" :
+                break;
+            case "stops.txt" :
+                // insert ok
+                Stop stop = new Stop();
+                stop.setId(line[0]);
+                stop.setStopName(line[2]);
+                stop.setStopDesc(line[3]);
+                stop.setStopLat(line[4]);
+                stop.setStopLon(line[5]);
+                stop.setWheelchairBoarding(Integer.parseInt(line[11]));
+                dataSource.insertStop(stop);
+                break;
+            case "trips" :
+                // not tested
+                Trip trip = new Trip();
+                trip.setId(id);
+                trip.setRouteId(Integer.valueOf(line[0]));
+                trip.setServiceId(Integer.valueOf(line[1]));
+                trip.setTripHeadsign(line[3]);
+                trip.setDirectionId(line[5]);
+                trip.setBlockId(line[6]);
+                trip.setWheelchairAccessible(Integer.valueOf(line[8]));
+                dataSource.insertTrip(trip);
                 break;
         }
     }

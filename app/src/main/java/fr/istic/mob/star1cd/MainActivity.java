@@ -26,6 +26,7 @@ import android.widget.ProgressBar;
 import java.util.Objects;
 
 import fr.istic.mob.star1cd.database.DatabaseHelper;
+import fr.istic.mob.star1cd.database.StarContract;
 import fr.istic.mob.star1cd.services.StarService;
 
 public class MainActivity extends AppCompatActivity {
@@ -51,9 +52,10 @@ public class MainActivity extends AppCompatActivity {
 
         createNotificationChannel();
         this.progressBar = findViewById(R.id.progressBar);
-        this.databaseHelper = new DatabaseHelper(this);
+        this.databaseHelper = DatabaseHelper.getInstance(this);
         this.database = databaseHelper.getWritableDatabase();
 
+        //this.database.execSQL("DELETE FROM busroute");
         if (isNetworkAvailable(this)) {
             verifyStoragePermissions(this);
             Log.i("StarService", "Network is available");

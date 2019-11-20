@@ -9,6 +9,9 @@ public class Stop {
     private String stopLon;
     private int wheelchairBoarding;
 
+    public Stop() {
+    }
+
     public String getId() {
         return id;
     }
