@@ -102,6 +102,12 @@ public class StarService extends IntentService {
                 //readTxtFile("routes.txt");
                 MainActivity.getInstance().setProgress(25, "Inserting calendar");
                 //readTxtFile("calendar.txt");
+                MainActivity.getInstance().setProgress(30, "Inserting stops");
+                //readTxtFile("stops.txt");
+                MainActivity.getInstance().setProgress(35, "Inserting trips");
+                //readTxtFile("trips.txt");
+                MainActivity.getInstance().setProgress(40, "Inserting stop times");
+
             }
 
         } catch (Exception e) {
@@ -261,11 +267,16 @@ public class StarService extends IntentService {
             }
             Log.i("readTxtFile", text.toString());
         }
-
     }
 
+    /**
+     *
+     * @param id primary key
+     * @param dataSource data source
+     * @param line String line
+     * @param fileName
+     */
     private void insertLineInDB(Integer id, DataSource dataSource, String line[], String fileName) {
-
         switch (fileName) {
             case "routes.txt" :
                 // insert OK

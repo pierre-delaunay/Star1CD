@@ -24,6 +24,8 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.amitshekhar.DebugDB;
+
 import java.util.Objects;
 
 import fr.istic.mob.star1cd.database.DatabaseHelper;
@@ -56,6 +58,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Log.i("Debug", ""+ DebugDB.getAddressLog());
 
         createNotificationChannel();
         mInstance = this;
