@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import java.util.Objects;
 
@@ -31,12 +32,14 @@ import fr.istic.mob.star1cd.services.StarService;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static MainActivity mInstance;
     private DatabaseHelper databaseHelper;
     private SQLiteDatabase database;
     public static final String URL_VERSION =
             "https://data.explore.star.fr/explore/dataset/tco-busmetro-horaires-gtfs-versions-td/download/?format=json&timezone=Europe/Berlin";
 
     private ProgressBar progressBar;
+    private TextView textViewProgressBar;
     public static final String CHANNEL_ID = "channel_id";
     public static final String CHANNEL_NAME = "Notification Channel";
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
@@ -45,13 +48,19 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
 
+    public static MainActivity getInstance(){
+        return mInstance;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         createNotificationChannel();
+        mInstance = this;
         this.progressBar = findViewById(R.id.progressBar);
+        this.textViewProgressBar = findViewById(R.id.textViewProgressBar);
         this.databaseHelper = DatabaseHelper.getInstance(this);
         this.database = databaseHelper.getWritableDatabase();
 
@@ -134,5 +143,15 @@ public class MainActivity extends AppCompatActivity {
                     REQUEST_EXTERNAL_STORAGE
             );
         }
+    }
+
+    /**
+     *
+     * @param progress
+     * @param status
+     */
+    public void setProgress(int progress, String status) {
+        this.progressBar.setProgress(progress);
+        this.textViewProgressBar.setText(status);
     }
 }

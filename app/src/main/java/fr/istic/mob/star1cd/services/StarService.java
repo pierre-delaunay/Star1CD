@@ -29,11 +29,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import fr.istic.mob.star1cd.MainActivity;
 import fr.istic.mob.star1cd.database.DataSource;
 import fr.istic.mob.star1cd.database.DatabaseHelper;
 import fr.istic.mob.star1cd.database.model.BusRoute;
 import fr.istic.mob.star1cd.database.model.Calendar;
 import fr.istic.mob.star1cd.database.model.Stop;
+import fr.istic.mob.star1cd.database.model.StopTime;
 import fr.istic.mob.star1cd.database.model.Trip;
 import fr.istic.mob.star1cd.utils.DownloadAsyncTask;
 import fr.istic.mob.star1cd.utils.ZipManager;
@@ -77,23 +79,29 @@ public class StarService extends IntentService {
         try {
             statusCode = statusCodeFromJsonRequest(url);
             Log.i("StarService", "Status code of version request : " + String.valueOf(statusCode));
+            MainActivity.getInstance().setProgress(5, "Checking new version");
 
             if (statusCode == 200) {
                 inputStream = new BufferedInputStream(urlConnection.getInputStream());
                 String response = inputStreamToString(inputStream);
                 //Log.i("StarService", response);
 
-                JSONArray jsonArray = new JSONArray(response);
+                //JSONArray jsonArray = new JSONArray(response);
                 //Log.i("StarService", jsonArray.getJSONObject(0).toString());
-                JSONObject jsonObject = jsonArray.getJSONObject(0).getJSONObject("fields");
-                urlZip = jsonObject.getString("url");
-                Log.i("StarService", urlZip);
+                //JSONObject jsonObject = jsonArray.getJSONObject(0).getJSONObject("fields");
+                //urlZip = jsonObject.getString("url");
+                //Log.i("StarService", urlZip);
 
+                MainActivity.getInstance().setProgress(10, "Downloading new zip");
                 //downloadZip(urlZip);
 
+                MainActivity.getInstance().setProgress(15, "Unzipping in progress");
                 //ZipManager.unzip(zipPath + zipFileName, zipPath);
 
+                MainActivity.getInstance().setProgress(20, "Inserting bus routes");
                 //readTxtFile("routes.txt");
+                MainActivity.getInstance().setProgress(25, "Inserting calendar");
+                //readTxtFile("calendar.txt");
             }
 
         } catch (Exception e) {
@@ -289,6 +297,15 @@ public class StarService extends IntentService {
 
                 break;
             case "stop_times.txt" :
+                // not tested
+                StopTime stopTime = new StopTime();
+                stopTime.setId(id);
+                stopTime.setTripId(Integer.valueOf(line[0]));
+                stopTime.setArrivalTime(line[1]);
+                stopTime.setDepartureTime(line[2]);
+                stopTime.setStopId(line[3]);
+                stopTime.setStopSequence(Integer.valueOf(line[4]));
+
                 break;
             case "stops.txt" :
                 // insert ok
