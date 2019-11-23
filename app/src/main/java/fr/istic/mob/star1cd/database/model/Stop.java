@@ -1,12 +1,27 @@
 package fr.istic.mob.star1cd.database.model;
 
+import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
+import fr.istic.mob.star1cd.database.StarContract;
+
+@Entity
 public class Stop {
 
+    @PrimaryKey @NonNull
+    @ColumnInfo(name = StarContract.Stops.StopColumns._ID)
     private String id;
+    @ColumnInfo(name = StarContract.Stops.StopColumns.NAME)
     private String stopName;
+    @ColumnInfo(name = StarContract.Stops.StopColumns.DESCRIPTION)
     private String stopDesc;
+    @ColumnInfo(name = StarContract.Stops.StopColumns.LATITUDE)
     private String stopLat;
+    @ColumnInfo(name = StarContract.Stops.StopColumns.LONGITUDE)
     private String stopLon;
+    @ColumnInfo(name = StarContract.Stops.StopColumns.WHEELCHAIR_BOARDING)
     private int wheelchairBoarding;
 
     public Stop() {

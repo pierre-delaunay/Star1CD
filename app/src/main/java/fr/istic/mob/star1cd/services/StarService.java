@@ -14,8 +14,6 @@ import org.json.JSONObject;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -25,25 +23,20 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import fr.istic.mob.star1cd.MainActivity;
-import fr.istic.mob.star1cd.database.DataSource;
-import fr.istic.mob.star1cd.database.DatabaseHelper;
+import fr.istic.mob.star1cd.database.AppDatabase;
 import fr.istic.mob.star1cd.database.model.BusRoute;
 import fr.istic.mob.star1cd.database.model.Calendar;
 import fr.istic.mob.star1cd.database.model.Stop;
 import fr.istic.mob.star1cd.database.model.StopTime;
 import fr.istic.mob.star1cd.database.model.Trip;
-import fr.istic.mob.star1cd.utils.DownloadAsyncTask;
 import fr.istic.mob.star1cd.utils.ZipManager;
 
 public class StarService extends IntentService {
 
-    private DatabaseHelper databaseHelper;
-    private SQLiteDatabase database;
+    private AppDatabase appDatabase;
     private String urlZip;
     private int statusCode;
     private InputStream inputStream;
@@ -75,6 +68,7 @@ public class StarService extends IntentService {
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
         String url = intent.getStringExtra("url");
+        appDatabase = AppDatabase.getDatabase(this);
 
         try {
             statusCode = statusCodeFromJsonRequest(url);
@@ -86,17 +80,17 @@ public class StarService extends IntentService {
                 String response = inputStreamToString(inputStream);
                 //Log.i("StarService", response);
 
-                //JSONArray jsonArray = new JSONArray(response);
+                JSONArray jsonArray = new JSONArray(response);
                 //Log.i("StarService", jsonArray.getJSONObject(0).toString());
-                //JSONObject jsonObject = jsonArray.getJSONObject(0).getJSONObject("fields");
-                //urlZip = jsonObject.getString("url");
+                JSONObject jsonObject = jsonArray.getJSONObject(0).getJSONObject("fields");
+                urlZip = jsonObject.getString("url");
                 //Log.i("StarService", urlZip);
 
                 MainActivity.getInstance().setProgress(10, "Downloading new zip");
-                //downloadZip(urlZip);
+                downloadZip(urlZip);
 
                 MainActivity.getInstance().setProgress(15, "Unzipping in progress");
-                //ZipManager.unzip(zipPath + zipFileName, zipPath);
+                ZipManager.unpackZip(zipPath, zipFileName);
 
                 MainActivity.getInstance().setProgress(20, "Inserting bus routes");
                 //readTxtFile("routes.txt");
@@ -107,13 +101,13 @@ public class StarService extends IntentService {
                 MainActivity.getInstance().setProgress(35, "Inserting trips");
                 //readTxtFile("trips.txt");
                 MainActivity.getInstance().setProgress(40, "Inserting stop times");
-
+                //readTxtFile("stop_times.txt");
+                MainActivity.getInstance().setProgress(45, "Done with database inserts");
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     /**
@@ -134,13 +128,12 @@ public class StarService extends IntentService {
             HttpURLConnection urlConnection = (HttpURLConnection)  urlDownloadZip.openConnection();
             urlConnection.connect();
 
-            // getting file length
+            // Getting file length
             int lenghtOfFile = urlConnection.getContentLength();
             Log.i("AsyncTask", String.valueOf(lenghtOfFile));
 
-            // input stream to read file - with 8k buffer
+            // Input stream to read file - with 8k buffer
             InputStream input = new BufferedInputStream(urlDownloadZip.openStream(), 8192);
-
 
             // Output stream to write file
             OutputStream output = new FileOutputStream(zipPath + zipFileName);
@@ -156,10 +149,10 @@ public class StarService extends IntentService {
 
             }
 
-            // flushing output
+            // Flushing output
             output.flush();
 
-            // closing streams
+            // Closing streams
             output.close();
             input.close();
         } catch (Exception e) {
@@ -185,11 +178,12 @@ public class StarService extends IntentService {
         }
         return -1;
     }
+
     /**
      * Converts an InputStream to a String
      * @param inputStream source
-     * @return String
-     * @throws IOException
+     * @return String converted
+     * @throws IOException IOException
      */
     private String inputStreamToString(InputStream inputStream) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -231,8 +225,11 @@ public class StarService extends IntentService {
         return false;
     }
 
+    /**
+     * Read .txt file (/DCIM/Star/ directory)
+     * @param fileName name of the file
+     */
     private void readTxtFile(String fileName) {
-
         File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).toString() + "/Star/");
 
         if (dir.exists()) {
@@ -243,40 +240,34 @@ public class StarService extends IntentService {
                 BufferedReader br = new BufferedReader(new FileReader(file));
                 String line;
                 br.readLine(); // skip first line
-                DataSource dataSource = new DataSource(this);
+                //DataSource dataSource = new DataSource(this);
                 int id = 1;
-                databaseHelper = DatabaseHelper.getInstance(this);
-                database = databaseHelper.getWritableDatabase();
-                //database.beginTransaction(); // db performance
+
                 while ((line = br.readLine()) != null){
                     //text.append(line.replace("\"", ""));
                     //text.append('\n');
                     String tmp[] = line.replace("\"", "").split(",");
                     //Log.i("BDD", "size of " + tmp.length);
-                    insertLineInDB(id, dataSource, tmp, fileName);
+                    insertLineInDB(id, tmp, fileName);
                     //text.append(tmp[2]);
                     //text.append('\n');
                     id++;
                 }
                 br.close();
 
-                //database.setTransactionSuccessful(); // db performance
-                //database.endTransaction(); // db performance
             } catch (IOException e) {
-
+                e.printStackTrace();
             }
-            Log.i("readTxtFile", text.toString());
         }
     }
 
     /**
-     *
+     * Insert line from the file into the Database with Room library
      * @param id primary key
-     * @param dataSource data source
      * @param line String line
-     * @param fileName
+     * @param fileName name of the file
      */
-    private void insertLineInDB(Integer id, DataSource dataSource, String line[], String fileName) {
+    private void insertLineInDB(Integer id, String line[], String fileName) {
         switch (fileName) {
             case "routes.txt" :
                 // insert OK
@@ -288,8 +279,7 @@ public class StarService extends IntentService {
                 busRoute.setRouteType(line[5]);
                 busRoute.setRouteColor(line[7]);
                 busRoute.setRouteTextColor(line[8]);
-                dataSource.insertBusRoute(busRoute);
-
+                appDatabase.busRouteDao().insertAll(busRoute);
                 break;
             case "calendar.txt" :
                 // insert OK
@@ -304,8 +294,7 @@ public class StarService extends IntentService {
                 calendar.setSunday(Integer.valueOf(line[7]));
                 calendar.setStartDate(Integer.valueOf(line[8]));
                 calendar.setEndDate(Integer.valueOf(line[9]));
-                dataSource.insertCalendar(calendar);
-
+                appDatabase.calendarDAO().insertAll(calendar);
                 break;
             case "stop_times.txt" :
                 // not tested
@@ -316,7 +305,7 @@ public class StarService extends IntentService {
                 stopTime.setDepartureTime(line[2]);
                 stopTime.setStopId(line[3]);
                 stopTime.setStopSequence(Integer.valueOf(line[4]));
-
+                appDatabase.stopTimeDao().insertAll(stopTime);
                 break;
             case "stops.txt" :
                 // insert ok
@@ -327,9 +316,9 @@ public class StarService extends IntentService {
                 stop.setStopLat(line[4]);
                 stop.setStopLon(line[5]);
                 stop.setWheelchairBoarding(Integer.parseInt(line[11]));
-                dataSource.insertStop(stop);
+                appDatabase.stopDao().insertAll(stop);
                 break;
-            case "trips" :
+            case "trips.txt" :
                 // not tested
                 Trip trip = new Trip();
                 trip.setId(id);
@@ -339,10 +328,8 @@ public class StarService extends IntentService {
                 trip.setDirectionId(line[5]);
                 trip.setBlockId(line[6]);
                 trip.setWheelchairAccessible(Integer.valueOf(line[8]));
-                dataSource.insertTrip(trip);
+                appDatabase.tripDao().insertAll(trip);
                 break;
         }
     }
-
-
 }

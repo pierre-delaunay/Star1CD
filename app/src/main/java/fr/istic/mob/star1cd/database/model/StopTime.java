@@ -1,13 +1,30 @@
 package fr.istic.mob.star1cd.database.model;
 
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
+import fr.istic.mob.star1cd.database.StarContract;
+
+@Entity
 public class StopTime {
 
+    @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = StarContract.StopTimes.StopTimeColumns._ID)
     private int id;
+    @ColumnInfo(name = StarContract.StopTimes.StopTimeColumns.TRIP_ID)
     private int tripId;
+    @ColumnInfo(name = StarContract.StopTimes.StopTimeColumns.ARRIVAL_TIME)
     private String arrivalTime;
+    @ColumnInfo(name = StarContract.StopTimes.StopTimeColumns.DEPARTURE_TIME)
     private String departureTime;
+    @ColumnInfo(name = StarContract.StopTimes.StopTimeColumns.STOP_ID)
     private String stopId;
+    @ColumnInfo(name = StarContract.StopTimes.StopTimeColumns.STOP_SEQUENCE)
     private int stopSequence;
+
+    public StopTime () {
+    }
 
     public int getId() {
         return id;

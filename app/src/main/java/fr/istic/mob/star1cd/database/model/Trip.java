@@ -1,13 +1,28 @@
 package fr.istic.mob.star1cd.database.model;
 
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
+import fr.istic.mob.star1cd.database.StarContract;
+
+@Entity
 public class Trip {
 
+    @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = StarContract.Trips.TripColumns._ID)
     private int id;
+    @ColumnInfo(name = StarContract.Trips.TripColumns.ROUTE_ID)
     private int routeId;
+    @ColumnInfo(name = StarContract.Trips.TripColumns.SERVICE_ID)
     private int serviceId;
+    @ColumnInfo(name = StarContract.Trips.TripColumns.HEADSIGN)
     private String tripHeadsign;
+    @ColumnInfo(name = StarContract.Trips.TripColumns.DIRECTION_ID)
     private String directionId;
+    @ColumnInfo(name = StarContract.Trips.TripColumns.BLOCK_ID)
     private String blockId;
+    @ColumnInfo(name = StarContract.Trips.TripColumns.WHEELCHAIR_ACCESSIBLE)
     private int wheelchairAccessible;
 
     public int getId() {

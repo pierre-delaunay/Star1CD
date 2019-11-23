@@ -18,9 +18,15 @@ public interface BusRouteDao {
     @Delete
     void delete(BusRoute busRoute);
 
+    @Query("DELETE FROM busroute")
+    void deleteAll();
+
     @Query("SELECT * FROM busroute")
     List<BusRoute> getAll();
 
     @Query("SELECT * FROM busroute WHERE _id = :id")
     BusRoute findById(int id);
+
+    @Query("SELECT route_long_name FROM busroute WHERE _id = :id")
+    String findRouteLongName(int id);
 }

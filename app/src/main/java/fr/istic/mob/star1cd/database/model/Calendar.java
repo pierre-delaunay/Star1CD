@@ -1,16 +1,34 @@
 package fr.istic.mob.star1cd.database.model;
 
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
+import fr.istic.mob.star1cd.database.StarContract;
+
+@Entity
 public class Calendar {
 
+    @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = StarContract.Calendar.CalendarColumns._ID)
     private int id;
+    @ColumnInfo(name = StarContract.Calendar.CalendarColumns.MONDAY)
     private int monday;
+    @ColumnInfo(name = StarContract.Calendar.CalendarColumns.TUESDAY)
     private int tuesday;
+    @ColumnInfo(name = StarContract.Calendar.CalendarColumns.WEDNESDAY)
     private int wednesday;
+    @ColumnInfo(name = StarContract.Calendar.CalendarColumns.THURSDAY)
     private int thursday;
+    @ColumnInfo(name = StarContract.Calendar.CalendarColumns.FRIDAY)
     private int friday;
+    @ColumnInfo(name = StarContract.Calendar.CalendarColumns.SATURDAY)
     private int saturday;
+    @ColumnInfo(name = StarContract.Calendar.CalendarColumns.SUNDAY)
     private int sunday;
+    @ColumnInfo(name = StarContract.Calendar.CalendarColumns.START_DATE)
     private int startDate;
+    @ColumnInfo(name = StarContract.Calendar.CalendarColumns.END_DATE)
     private int endDate;
 
     public Calendar() {

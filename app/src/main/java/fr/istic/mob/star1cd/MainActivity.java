@@ -21,7 +21,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.amitshekhar.DebugDB;
@@ -29,8 +32,8 @@ import com.amitshekhar.DebugDB;
 import java.util.Objects;
 
 import fr.istic.mob.star1cd.database.DatabaseHelper;
-import fr.istic.mob.star1cd.database.StarContract;
 import fr.istic.mob.star1cd.services.StarService;
+import fr.istic.mob.star1cd.utils.SpinnerLineAsyncTask;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -39,7 +42,6 @@ public class MainActivity extends AppCompatActivity {
     private SQLiteDatabase database;
     public static final String URL_VERSION =
             "https://data.explore.star.fr/explore/dataset/tco-busmetro-horaires-gtfs-versions-td/download/?format=json&timezone=Europe/Berlin";
-
     private ProgressBar progressBar;
     private TextView textViewProgressBar;
     public static final String CHANNEL_ID = "channel_id";
@@ -49,8 +51,9 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
+    private Spinner spinnerBusLine, spinnerBusDirection;
 
-    public static MainActivity getInstance(){
+    public static MainActivity getInstance() {
         return mInstance;
     }
 
@@ -59,16 +62,19 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Log.i("Debug", ""+ DebugDB.getAddressLog());
+        Log.i("Debug", "" + DebugDB.getAddressLog());
 
         createNotificationChannel();
         mInstance = this;
         this.progressBar = findViewById(R.id.progressBar);
         this.textViewProgressBar = findViewById(R.id.textViewProgressBar);
-        this.databaseHelper = DatabaseHelper.getInstance(this);
-        this.database = databaseHelper.getWritableDatabase();
+        this.spinnerBusLine = findViewById(R.id.spinnerBusLine);
+        this.spinnerBusDirection = findViewById(R.id.spinnerBusDirection);
+        // Hide spinner until a line has been selected by the user
+        spinnerBusDirection.setVisibility(View.GONE);
+        //this.databaseHelper = DatabaseHelper.getInstance(this);
+        //this.database = databaseHelper.getWritableDatabase();
 
-        //this.database.execSQL("DELETE FROM busroute");
         if (isNetworkAvailable(this)) {
             verifyStoragePermissions(this);
             Log.i("StarService", "Network is available");
@@ -76,33 +82,41 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra("url", URL_VERSION);
             startService(intent);
         }
+        //initSpinnerBusLine();
     }
 
     /**
      * isNetworkAvailable
+     *
      * @param context Context
      * @return boolean, true if network available
      */
-    public boolean isNetworkAvailable(Context context){
+    public boolean isNetworkAvailable(Context context) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             Network activeNetwork = connectivityManager.getActiveNetwork();
             NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork);
-            if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) { return true; }
-            if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) { return true; }
-            if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) { return true; }
+            if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                return true;
+            }
+            if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                return true;
+            }
+            if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
+                return true;
+            }
             return false;
         } else {
             // getActiveNetworkInfo is deprecated on API 29
             NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-            return  activeNetworkInfo.isConnected();
+            return activeNetworkInfo.isConnected();
         }
     }
 
     /**
      * Create notification channel, API 26+
      */
-    private void createNotificationChannel(){
+    private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             int importance = NotificationManager.IMPORTANCE_DEFAULT;
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, importance);
@@ -115,6 +129,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Show new notification - new version available
+     *
      * @param view View
      */
     public void showNotificationNewVersion(View view) {
@@ -130,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Checks if the app has permission to write to device storage
-     *
+     * <p>
      * If the app does not has permission then the user will be prompted to grant permissions
      *
      * @param activity, current activity
@@ -150,12 +165,49 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * Set progress bar
      *
-     * @param progress
-     * @param status
+     * @param progress value of the progress
+     * @param status   description of the current task
      */
     public void setProgress(int progress, String status) {
         this.progressBar.setProgress(progress);
         this.textViewProgressBar.setText(status);
+    }
+
+    /**
+     * Initiliaze the bus line spinner with an async task
+     * Because we can't perform DB operations on main thread
+     */
+    private void initSpinnerBusLine() {
+        try {
+            ArrayAdapter<String> arrayAdapter = new SpinnerLineAsyncTask(this, spinnerBusLine).execute().get();
+            arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinnerBusLine.setAdapter(arrayAdapter);
+            spinnerBusLine.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    String selection = (String) parent.getItemAtPosition(position);
+                    Log.i("spinnerSelection", selection);
+                    initSpinnerBusDirection(selection);
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Initialize the spinner with the possible directions for this route
+     *
+     * @param routeShortName selected route
+     */
+    private void initSpinnerBusDirection(String routeShortName) {
+        this.spinnerBusDirection.setVisibility(View.VISIBLE);
     }
 }
