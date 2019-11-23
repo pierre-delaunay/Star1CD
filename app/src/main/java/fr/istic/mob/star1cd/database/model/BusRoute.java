@@ -1,13 +1,28 @@
 package fr.istic.mob.star1cd.database.model;
 
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
+import fr.istic.mob.star1cd.database.StarContract;
+
+@Entity
 public class BusRoute {
 
+    @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = StarContract.BusRoutes.BusRouteColumns._ID)
     private int id;
+    @ColumnInfo(name = StarContract.BusRoutes.BusRouteColumns.SHORT_NAME)
     private String routeShortName;
+    @ColumnInfo(name = StarContract.BusRoutes.BusRouteColumns.LONG_NAME)
     private String routeLongName;
+    @ColumnInfo(name = StarContract.BusRoutes.BusRouteColumns.DESCRIPTION)
     private String routeDescription;
+    @ColumnInfo(name = StarContract.BusRoutes.BusRouteColumns.TYPE)
     private String routeType;
+    @ColumnInfo(name = StarContract.BusRoutes.BusRouteColumns.COLOR)
     private String routeColor;
+    @ColumnInfo(name = StarContract.BusRoutes.BusRouteColumns.TEXT_COLOR)
     private String routeTextColor;
 
     public BusRoute() {
