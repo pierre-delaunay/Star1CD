@@ -13,6 +13,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
@@ -72,8 +73,8 @@ public class MainActivity extends AppCompatActivity {
         this.spinnerBusDirection = findViewById(R.id.spinnerBusDirection);
         // Hide spinner until a line has been selected by the user
         spinnerBusDirection.setVisibility(View.GONE);
-        //this.databaseHelper = DatabaseHelper.getInstance(this);
-        //this.database = databaseHelper.getWritableDatabase();
+
+        showNotificationNewVersion();
 
         if (isNetworkAvailable(this)) {
             verifyStoragePermissions(this);
@@ -130,15 +131,17 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Show new notification - new version available
      *
-     * @param view View
      */
-    public void showNotificationNewVersion(View view) {
+    public void showNotificationNewVersion() {
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
         NotificationCompat.Builder notifBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle(getResources().getString(R.string.app_name))
                 .setContentText(getResources().getString(R.string.new_version_available))
+                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.icon_star_app))
                 .setSmallIcon(R.drawable.ic_notification_version)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .addAction(R.drawable.ic_accept, "Download", null)
+                .addAction(R.drawable.ic_reject, "Reject", null);
 
         notificationManager.notify(1, notifBuilder.build());
     }
