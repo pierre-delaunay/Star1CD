@@ -12,7 +12,6 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.Network;
@@ -32,15 +31,12 @@ import com.amitshekhar.DebugDB;
 
 import java.util.Objects;
 
-import fr.istic.mob.star1cd.database.DatabaseHelper;
 import fr.istic.mob.star1cd.services.StarService;
 import fr.istic.mob.star1cd.utils.SpinnerLineAsyncTask;
 
 public class MainActivity extends AppCompatActivity {
 
     private static MainActivity mInstance;
-    private DatabaseHelper databaseHelper;
-    private SQLiteDatabase database;
     public static final String URL_VERSION =
             "https://data.explore.star.fr/explore/dataset/tco-busmetro-horaires-gtfs-versions-td/download/?format=json&timezone=Europe/Berlin";
     private ProgressBar progressBar;
@@ -83,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra("url", URL_VERSION);
             startService(intent);
         }
-        //initSpinnerBusLine();
+        initSpinnerBusLine();
     }
 
     /**
@@ -182,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
      * Initiliaze the bus line spinner with an async task
      * Because we can't perform DB operations on main thread
      */
-    private void initSpinnerBusLine() {
+    public void initSpinnerBusLine() {
         try {
             ArrayAdapter<String> arrayAdapter = new SpinnerLineAsyncTask(this, spinnerBusLine).execute().get();
             arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -212,5 +208,6 @@ public class MainActivity extends AppCompatActivity {
      */
     private void initSpinnerBusDirection(String routeShortName) {
         this.spinnerBusDirection.setVisibility(View.VISIBLE);
+
     }
 }

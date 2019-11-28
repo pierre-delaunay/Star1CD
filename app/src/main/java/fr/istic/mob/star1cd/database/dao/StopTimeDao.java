@@ -15,6 +15,9 @@ public interface StopTimeDao {
     @Insert
     void insertAll(StopTime... stopTimes);
 
+    @Insert
+    void insertAll(List<StopTime> stopTimes);
+
     @Delete
     void delete(StopTime stopTime);
 

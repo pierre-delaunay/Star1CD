@@ -23,7 +23,9 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import fr.istic.mob.star1cd.MainActivity;
 import fr.istic.mob.star1cd.database.AppDatabase;
@@ -43,6 +45,8 @@ public class StarService extends IntentService {
     private HttpURLConnection urlConnection;
     private final static String zipPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).toString() + "/Star/";
     private final static String zipFileName = "star.zip";
+    private int i;
+    private List<StopTime> stopTimes = new ArrayList<StopTime>();
 
     /**
      * Creates an IntentService.  Invoked by your subclass's constructor.
@@ -85,14 +89,17 @@ public class StarService extends IntentService {
                 JSONObject jsonObject = jsonArray.getJSONObject(0).getJSONObject("fields");
                 urlZip = jsonObject.getString("url");
                 //Log.i("StarService", urlZip);
+                //Log.i("StarService", jsonObject.getString("finvalidite"));
+
 
                 MainActivity.getInstance().setProgress(10, "Downloading new zip");
-                downloadZip(urlZip);
+                //downloadZip(urlZip);
 
                 MainActivity.getInstance().setProgress(15, "Unzipping in progress");
-                ZipManager.unpackZip(zipPath, zipFileName);
+                //ZipManager.unpackZip(zipPath, zipFileName);
 
                 MainActivity.getInstance().setProgress(20, "Inserting bus routes");
+                //appDatabase.busRouteDao().deleteAll();
                 //readTxtFile("routes.txt");
                 MainActivity.getInstance().setProgress(25, "Inserting calendar");
                 //readTxtFile("calendar.txt");
@@ -103,6 +110,8 @@ public class StarService extends IntentService {
                 MainActivity.getInstance().setProgress(40, "Inserting stop times");
                 //readTxtFile("stop_times.txt");
                 MainActivity.getInstance().setProgress(45, "Done with database inserts");
+
+                //MainActivity.getInstance().initSpinnerBusLine();
             }
 
         } catch (Exception e) {
@@ -209,13 +218,13 @@ public class StarService extends IntentService {
     /**
      *  Compare two dates
      *  Source : https://stackoverflow.com/questions/10774871/best-way-to-compare-dates-in-android
-     * @param strDate1 example "1/1/1990"
-     * @param strDate2 example "1/1/1990"
+     * @param strDate1 example "2000-01-01"
+     * @param strDate2 example "1900-01-01"
      * @return true if date1 is more recent than date2
      */
     private static boolean isAfter(String strDate1, String strDate2) {
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             Date date1 = sdf.parse(strDate1);
             Date date2 = sdf.parse(strDate2);
             return (date1.after(date2));
@@ -305,7 +314,7 @@ public class StarService extends IntentService {
                 stopTime.setDepartureTime(line[2]);
                 stopTime.setStopId(line[3]);
                 stopTime.setStopSequence(Integer.valueOf(line[4]));
-                appDatabase.stopTimeDao().insertAll(stopTime);
+                insertStopTime(stopTime);
                 break;
             case "stops.txt" :
                 // insert ok
@@ -330,6 +339,20 @@ public class StarService extends IntentService {
                 trip.setWheelchairAccessible(Integer.valueOf(line[8]));
                 appDatabase.tripDao().insertAll(trip);
                 break;
+        }
+    }
+
+    /**
+     * Insert in database using List (batch inserts for better performance)
+     * @param stopTime object
+     */
+    public void insertStopTime(StopTime stopTime) {
+        stopTimes.add(stopTime);
+        i++;
+        if (i == 500) {
+            appDatabase.stopTimeDao().insertAll(stopTimes);
+            i = 0;
+            stopTimes.clear();
         }
     }
 }
