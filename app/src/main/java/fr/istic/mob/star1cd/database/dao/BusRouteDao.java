@@ -27,6 +27,9 @@ public interface BusRouteDao {
     @Query("SELECT * FROM busroute WHERE _id = :id")
     BusRoute findById(int id);
 
+    @Query("SELECT * FROM busroute LIMIT 5")
+    List<BusRoute> findAny();
+
     @Query("SELECT route_long_name FROM busroute WHERE route_short_name = :name")
     String findRouteLongName(String name);
 }

@@ -43,6 +43,8 @@ public class StarService extends IntentService {
     private int statusCode;
     private InputStream inputStream;
     private HttpURLConnection urlConnection;
+    public static final String URL_VERSION =
+            "https://data.explore.star.fr/explore/dataset/tco-busmetro-horaires-gtfs-versions-td/download/?format=json&timezone=Europe/Berlin";
     private final static String zipPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).toString() + "/Star/";
     private final static String zipFileName = "star.zip";
     private int i;
@@ -71,47 +73,57 @@ public class StarService extends IntentService {
      */
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        String url = intent.getStringExtra("url");
+        String url = URL_VERSION;
         appDatabase = AppDatabase.getDatabase(this);
 
         try {
             statusCode = statusCodeFromJsonRequest(url);
             Log.i("StarService", "Status code of version request : " + String.valueOf(statusCode));
-            MainActivity.getInstance().setProgress(5, "Checking new version");
+            //MainActivity.getInstance().setProgress(5, "Checking new version");
 
             if (statusCode == 200) {
                 inputStream = new BufferedInputStream(urlConnection.getInputStream());
                 String response = inputStreamToString(inputStream);
-                //Log.i("StarService", response);
 
                 JSONArray jsonArray = new JSONArray(response);
-                //Log.i("StarService", jsonArray.getJSONObject(0).toString());
                 JSONObject jsonObject = jsonArray.getJSONObject(0).getJSONObject("fields");
-                urlZip = jsonObject.getString("url");
-                //Log.i("StarService", urlZip);
-                //Log.i("StarService", jsonObject.getString("finvalidite"));
+                String dateFinValidite = jsonObject.getString("finvalidite");
 
+                if (!isAfterExpirationDate(dateFinValidite)) {
+                    Log.i("StarService", "Downloading first json object");
+                    urlZip = jsonObject.getString("url");
 
-                MainActivity.getInstance().setProgress(10, "Downloading new zip");
-                //downloadZip(urlZip);
+                } else {
+                    Log.i("StarService", "Downloading second json object");
+                    urlZip = jsonArray.getJSONObject(1).getJSONObject("fields").getString("url");
+                }
 
-                MainActivity.getInstance().setProgress(15, "Unzipping in progress");
-                //ZipManager.unpackZip(zipPath, zipFileName);
+                Log.i("StarService", "isDBempty" + this.isDatabaseEmpty());
 
-                MainActivity.getInstance().setProgress(20, "Inserting bus routes");
+                this.setProgress(10, "Downloading new zip");
+                downloadZip(urlZip);
+
+                this.setProgress(15, "Unzipping in progress");
+                ZipManager.unpackZip(zipPath, zipFileName);
+
+                this.setProgress(20, "Inserting bus routes");
                 //appDatabase.busRouteDao().deleteAll();
                 //readTxtFile("routes.txt");
-                MainActivity.getInstance().setProgress(25, "Inserting calendar");
-                //readTxtFile("calendar.txt");
-                MainActivity.getInstance().setProgress(30, "Inserting stops");
-                //readTxtFile("stops.txt");
-                MainActivity.getInstance().setProgress(35, "Inserting trips");
-                //readTxtFile("trips.txt");
-                MainActivity.getInstance().setProgress(40, "Inserting stop times");
-                //readTxtFile("stop_times.txt");
-                MainActivity.getInstance().setProgress(45, "Done with database inserts");
 
-                //MainActivity.getInstance().initSpinnerBusLine();
+                this.setProgress(25, "Inserting calendar");
+                //readTxtFile("calendar.txt");
+
+                this.setProgress(30, "Inserting stops");
+                //readTxtFile("stops.txt");
+
+                this.setProgress(35, "Inserting trips");
+                //readTxtFile("trips.txt");
+
+                this.setProgress(40, "Inserting stop times");
+                //readTxtFile("stop_times.txt");
+
+                this.setProgress(100, "Done with database inserts");
+
             }
 
         } catch (Exception e) {
@@ -121,6 +133,7 @@ public class StarService extends IntentService {
 
     /**
      * Download the zip archive and store it in external storage (path : /DCIM/Star/)
+     *
      * @param url String 'http://ftp.keolis-rennes.com[...]'
      */
     private void downloadZip(String url) {
@@ -134,7 +147,7 @@ public class StarService extends IntentService {
                 f.mkdir();
             }
 
-            HttpURLConnection urlConnection = (HttpURLConnection)  urlDownloadZip.openConnection();
+            HttpURLConnection urlConnection = (HttpURLConnection) urlDownloadZip.openConnection();
             urlConnection.connect();
 
             // Getting file length
@@ -171,6 +184,7 @@ public class StarService extends IntentService {
 
     /**
      * Returns the status code of a GET Json request
+     *
      * @param url request
      * @return status code, -1 if the request failed
      */
@@ -190,6 +204,7 @@ public class StarService extends IntentService {
 
     /**
      * Converts an InputStream to a String
+     *
      * @param inputStream source
      * @return String converted
      * @throws IOException IOException
@@ -216,18 +231,18 @@ public class StarService extends IntentService {
     }
 
     /**
-     *  Compare two dates
-     *  Source : https://stackoverflow.com/questions/10774871/best-way-to-compare-dates-in-android
-     * @param strDate1 example "2000-01-01"
-     * @param strDate2 example "1900-01-01"
-     * @return true if date1 is more recent than date2
+     * Compare today date with the expiration date
+     * Source : https://stackoverflow.com/questions/10774871/best-way-to-compare-dates-in-android
+     *
+     * @param expirationDateString example "2000-01-01"
+     * @return true if today date is after expiration date
      */
-    private static boolean isAfter(String strDate1, String strDate2) {
+    private static boolean isAfterExpirationDate(String expirationDateString) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            Date date1 = sdf.parse(strDate1);
-            Date date2 = sdf.parse(strDate2);
-            return (date1.after(date2));
+            Date expirationDate = sdf.parse(expirationDateString);
+            Date todayDate = new Date();
+            return (todayDate.after(expirationDate));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -236,6 +251,7 @@ public class StarService extends IntentService {
 
     /**
      * Read .txt file (/DCIM/Star/ directory)
+     *
      * @param fileName name of the file
      */
     private void readTxtFile(String fileName) {
@@ -249,10 +265,9 @@ public class StarService extends IntentService {
                 BufferedReader br = new BufferedReader(new FileReader(file));
                 String line;
                 br.readLine(); // skip first line
-                //DataSource dataSource = new DataSource(this);
                 int id = 1;
 
-                while ((line = br.readLine()) != null){
+                while ((line = br.readLine()) != null) {
                     //text.append(line.replace("\"", ""));
                     //text.append('\n');
                     String tmp[] = line.replace("\"", "").split(",");
@@ -272,14 +287,14 @@ public class StarService extends IntentService {
 
     /**
      * Insert line from the file into the Database with Room library
-     * @param id primary key
-     * @param line String line
+     *
+     * @param id       primary key
+     * @param line     String line
      * @param fileName name of the file
      */
     private void insertLineInDB(Integer id, String line[], String fileName) {
         switch (fileName) {
-            case "routes.txt" :
-                // insert OK
+            case "routes.txt":
                 BusRoute busRoute = new BusRoute();
                 busRoute.setId(id);
                 busRoute.setRouteShortName(line[2]);
@@ -290,8 +305,7 @@ public class StarService extends IntentService {
                 busRoute.setRouteTextColor(line[8]);
                 appDatabase.busRouteDao().insertAll(busRoute);
                 break;
-            case "calendar.txt" :
-                // insert OK
+            case "calendar.txt":
                 Calendar calendar = new Calendar();
                 calendar.setId(Integer.valueOf(line[0]));
                 calendar.setMonday(Integer.valueOf(line[1]));
@@ -305,8 +319,7 @@ public class StarService extends IntentService {
                 calendar.setEndDate(Integer.valueOf(line[9]));
                 appDatabase.calendarDAO().insertAll(calendar);
                 break;
-            case "stop_times.txt" :
-                // not tested
+            case "stop_times.txt":
                 StopTime stopTime = new StopTime();
                 stopTime.setId(id);
                 stopTime.setTripId(Integer.valueOf(line[0]));
@@ -316,8 +329,7 @@ public class StarService extends IntentService {
                 stopTime.setStopSequence(Integer.valueOf(line[4]));
                 insertStopTime(stopTime);
                 break;
-            case "stops.txt" :
-                // insert ok
+            case "stops.txt":
                 Stop stop = new Stop();
                 stop.setId(line[0]);
                 stop.setStopName(line[2]);
@@ -327,8 +339,7 @@ public class StarService extends IntentService {
                 stop.setWheelchairBoarding(Integer.parseInt(line[11]));
                 appDatabase.stopDao().insertAll(stop);
                 break;
-            case "trips.txt" :
-                // not tested
+            case "trips.txt":
                 Trip trip = new Trip();
                 trip.setId(id);
                 trip.setRouteId(Integer.valueOf(line[0]));
@@ -344,6 +355,7 @@ public class StarService extends IntentService {
 
     /**
      * Insert in database using List (batch inserts for better performance)
+     *
      * @param stopTime object
      */
     public void insertStopTime(StopTime stopTime) {
@@ -354,5 +366,29 @@ public class StarService extends IntentService {
             i = 0;
             stopTimes.clear();
         }
+    }
+
+    /**
+     * Set new progress for the progress bar
+     *
+     * @param progress int progress value
+     * @param status   message that will be displayed
+     */
+    private void setProgress(final int progress, final String status) {
+        MainActivity.getInstance().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                MainActivity.getInstance().setProgress(progress, status);
+            }
+        });
+    }
+
+    /**
+     * Returns database status
+     *
+     * @return true if database is empty (no rows)
+     */
+    private boolean isDatabaseEmpty() {
+        return appDatabase.busRouteDao().findAny().size() == 0;
     }
 }
