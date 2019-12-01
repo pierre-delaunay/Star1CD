@@ -15,6 +15,9 @@ public interface TripDao {
     @Insert
     void insertAll(Trip... trips);
 
+    @Insert
+    void insertAll(List<Trip> trips);
+
     @Delete
     void delete(Trip trip);
 

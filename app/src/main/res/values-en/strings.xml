@@ -8,5 +8,5 @@
     <string name="pick_bus_direction">Pick bus direction</string>
     <string name="search">Search</string>
     <string name="new_version_available">New version available</string>
-    <string name="progressbar_initialize">In progress...</string>
+    <string name="progressbar_initialize">Initialization</string>
 </resources>

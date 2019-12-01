@@ -68,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
         mInstance = this;
 
         this.progressBar = findViewById(R.id.progressBar);
+        this.progressBar.setScaleY(3f);
         this.textViewProgressBar = findViewById(R.id.textViewProgressBar);
         this.spinnerBusLine = findViewById(R.id.spinnerBusLine);
         this.spinnerBusDirection = findViewById(R.id.spinnerBusDirection);
@@ -85,7 +86,6 @@ public class MainActivity extends AppCompatActivity {
         createNotification();
 
         if (isNetworkAvailable(this)) {
-            verifyStoragePermissions(this);
             Log.i("StarService", "Network is available");
             //Intent intent = new Intent(Intent.ACTION_SYNC, null, this, StarService.class);
             //startService(intent);
@@ -228,7 +228,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 String shortName = appDatabase.busRouteDao().findRouteLongName(routeShortName);
-                //Log.i("Runnable", shortName);
                 String[] splits = shortName.split(" <> ");
                 ArrayList<String> arrayList = new ArrayList<>();
                 arrayList.add(splits[0]); arrayList.add(splits[splits.length-1]);

@@ -2,7 +2,6 @@ package fr.istic.mob.star1cd.services;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Environment;
 import android.util.Log;
 
@@ -38,6 +37,7 @@ import fr.istic.mob.star1cd.utils.ZipManager;
 
 public class StarService extends IntentService {
 
+    // adb forward tcp:8081 tcp:8081
     private AppDatabase appDatabase;
     private String urlZip;
     private int statusCode;
@@ -45,10 +45,10 @@ public class StarService extends IntentService {
     private HttpURLConnection urlConnection;
     public static final String URL_VERSION =
             "https://data.explore.star.fr/explore/dataset/tco-busmetro-horaires-gtfs-versions-td/download/?format=json&timezone=Europe/Berlin";
-    private final static String zipPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).toString() + "/Star/";
     private final static String zipFileName = "star.zip";
-    private int i;
+    private int i, k;
     private List<StopTime> stopTimes = new ArrayList<StopTime>();
+    private List<Trip> trips = new ArrayList<Trip>();
 
     /**
      * Creates an IntentService.  Invoked by your subclass's constructor.
@@ -98,32 +98,42 @@ public class StarService extends IntentService {
                     urlZip = jsonArray.getJSONObject(1).getJSONObject("fields").getString("url");
                 }
 
-                Log.i("StarService", "isDBempty" + this.isDatabaseEmpty());
-
                 this.setProgress(10, "Downloading new zip");
                 downloadZip(urlZip);
 
                 this.setProgress(15, "Unzipping in progress");
-                ZipManager.unpackZip(zipPath, zipFileName);
+                ZipManager.unpackZip(getFilesDir().getPath() + File.separator, zipFileName);
 
                 this.setProgress(20, "Inserting bus routes");
-                //appDatabase.busRouteDao().deleteAll();
-                //readTxtFile("routes.txt");
+                appDatabase.busRouteDao().deleteAll();
+                readTxtFile("routes.txt");
 
                 this.setProgress(25, "Inserting calendar");
-                //readTxtFile("calendar.txt");
+                appDatabase.calendarDAO().deleteAll();
+                readTxtFile("calendar.txt");
 
                 this.setProgress(30, "Inserting stops");
-                //readTxtFile("stops.txt");
+                appDatabase.stopDao().deleteAll();
+                readTxtFile("stops.txt");
+
 
                 this.setProgress(35, "Inserting trips");
-                //readTxtFile("trips.txt");
+                appDatabase.tripDao().deleteAll();
+                readTxtFile("trips.txt");
+                // Insert trips that remain in the list
+                if (trips.size() != 0) {
+                    appDatabase.tripDao().insertAll(trips);
+                }
 
                 this.setProgress(40, "Inserting stop times");
-                //readTxtFile("stop_times.txt");
+                appDatabase.stopTimeDao().deleteAll();
+                readTxtFile("stop_times.txt");
+                // Insert stop times that remain in the list
+                if (stopTimes.size() != 0) {
+                    appDatabase.stopTimeDao().insertAll(stopTimes);
+                }
 
                 this.setProgress(100, "Done with database inserts");
-
             }
 
         } catch (Exception e) {
@@ -152,13 +162,13 @@ public class StarService extends IntentService {
 
             // Getting file length
             int lenghtOfFile = urlConnection.getContentLength();
-            Log.i("AsyncTask", String.valueOf(lenghtOfFile));
+            Log.i("StarService", String.valueOf(lenghtOfFile));
 
             // Input stream to read file - with 8k buffer
             InputStream input = new BufferedInputStream(urlDownloadZip.openStream(), 8192);
 
             // Output stream to write file
-            OutputStream output = new FileOutputStream(zipPath + zipFileName);
+            OutputStream output = new FileOutputStream(getFilesDir().getPath() + File.separator + zipFileName); // zipPath + zipFileName
             byte data[] = new byte[1024];
 
             int count;
@@ -250,12 +260,12 @@ public class StarService extends IntentService {
     }
 
     /**
-     * Read .txt file (/DCIM/Star/ directory)
+     * Read .txt file (/files/ directory in internal storage)
      *
      * @param fileName name of the file
      */
     private void readTxtFile(String fileName) {
-        File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).toString() + "/Star/");
+        File dir = new File(getFilesDir().getPath() + File.separator);
 
         if (dir.exists()) {
             File file = new File(dir, fileName);
@@ -348,7 +358,7 @@ public class StarService extends IntentService {
                 trip.setDirectionId(line[5]);
                 trip.setBlockId(line[6]);
                 trip.setWheelchairAccessible(Integer.valueOf(line[8]));
-                appDatabase.tripDao().insertAll(trip);
+                insertTrip(trip);
                 break;
         }
     }
@@ -365,6 +375,21 @@ public class StarService extends IntentService {
             appDatabase.stopTimeDao().insertAll(stopTimes);
             i = 0;
             stopTimes.clear();
+        }
+    }
+
+    /**
+     * Insert in database using List (batch inserts for better performance)
+     *
+     * @param trip object
+     */
+    public void insertTrip(Trip trip) {
+        trips.add(trip);
+        k++;
+        if (k == 500) {
+            appDatabase.tripDao().insertAll(trips);
+            k = 0;
+            trips.clear();
         }
     }
 
