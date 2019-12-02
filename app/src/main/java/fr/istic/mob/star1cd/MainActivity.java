@@ -9,10 +9,10 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.Network;
@@ -24,25 +24,23 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.amitshekhar.DebugDB;
-
+import java.util.ArrayList;
 import java.util.Objects;
 
-import fr.istic.mob.star1cd.database.DatabaseHelper;
+import fr.istic.mob.star1cd.database.AppDatabase;
 import fr.istic.mob.star1cd.services.StarService;
 import fr.istic.mob.star1cd.utils.SpinnerLineAsyncTask;
 
 public class MainActivity extends AppCompatActivity {
 
     private static MainActivity mInstance;
-    private DatabaseHelper databaseHelper;
-    private SQLiteDatabase database;
-    public static final String URL_VERSION =
-            "https://data.explore.star.fr/explore/dataset/tco-busmetro-horaires-gtfs-versions-td/download/?format=json&timezone=Europe/Berlin";
     private ProgressBar progressBar;
     private TextView textViewProgressBar;
     public static final String CHANNEL_ID = "channel_id";
@@ -53,6 +51,8 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
     private Spinner spinnerBusLine, spinnerBusDirection;
+    private Button searchButton, dateButton, timeButton;
+    private EditText dateEditText, timeEditText;
 
     public static MainActivity getInstance() {
         return mInstance;
@@ -63,27 +63,34 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Log.i("Debug", "" + DebugDB.getAddressLog());
-
         createNotificationChannel();
+
         mInstance = this;
+
         this.progressBar = findViewById(R.id.progressBar);
+        this.progressBar.setScaleY(3f);
         this.textViewProgressBar = findViewById(R.id.textViewProgressBar);
         this.spinnerBusLine = findViewById(R.id.spinnerBusLine);
         this.spinnerBusDirection = findViewById(R.id.spinnerBusDirection);
+        this.dateButton = findViewById(R.id.dateButton);
+        this.timeButton = findViewById(R.id.timeButton);
+        this.searchButton = findViewById(R.id.searchButton);
+        this.dateEditText = findViewById(R.id.dateEditText);
+        this.timeEditText = findViewById(R.id.timeEditText);
+
         // Hide spinner until a line has been selected by the user
         spinnerBusDirection.setVisibility(View.GONE);
+        timeEditText.setFocusable(false);
+        dateEditText.setFocusable(false);
 
-        showNotificationNewVersion();
+        createNotification();
 
         if (isNetworkAvailable(this)) {
-            verifyStoragePermissions(this);
             Log.i("StarService", "Network is available");
-            Intent intent = new Intent(Intent.ACTION_SYNC, null, this, StarService.class);
-            intent.putExtra("url", URL_VERSION);
-            startService(intent);
+            //Intent intent = new Intent(Intent.ACTION_SYNC, null, this, StarService.class);
+            //startService(intent);
         }
-        //initSpinnerBusLine();
+        initSpinnerBusLine();
     }
 
     /**
@@ -130,9 +137,14 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Show new notification - new version available
-     *
      */
-    public void showNotificationNewVersion() {
+    public void createNotification() {
+
+        Intent intent = new Intent(this, StarService.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+        PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, 0);
+
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
         NotificationCompat.Builder notifBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle(getResources().getString(R.string.app_name))
@@ -140,8 +152,7 @@ public class MainActivity extends AppCompatActivity {
                 .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.icon_star_app))
                 .setSmallIcon(R.drawable.ic_notification_version)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .addAction(R.drawable.ic_accept, "Download", null)
-                .addAction(R.drawable.ic_reject, "Reject", null);
+                .addAction(R.drawable.ic_accept, "Download", pendingIntent);
 
         notificationManager.notify(1, notifBuilder.build());
     }
@@ -182,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
      * Initiliaze the bus line spinner with an async task
      * Because we can't perform DB operations on main thread
      */
-    private void initSpinnerBusLine() {
+    public void initSpinnerBusLine() {
         try {
             ArrayAdapter<String> arrayAdapter = new SpinnerLineAsyncTask(this, spinnerBusLine).execute().get();
             arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -191,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     String selection = (String) parent.getItemAtPosition(position);
-                    Log.i("spinnerSelection", selection);
+                    //Log.i("spinnerSelection", selection);
                     initSpinnerBusDirection(selection);
                 }
 
@@ -210,7 +221,33 @@ public class MainActivity extends AppCompatActivity {
      *
      * @param routeShortName selected route
      */
-    private void initSpinnerBusDirection(String routeShortName) {
+    private void initSpinnerBusDirection(final String routeShortName) {
         this.spinnerBusDirection.setVisibility(View.VISIBLE);
+        final AppDatabase appDatabase = AppDatabase.getDatabase(this);
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String shortName = appDatabase.busRouteDao().findRouteLongName(routeShortName);
+                String[] splits = shortName.split(" <> ");
+                ArrayList<String> arrayList = new ArrayList<>();
+                arrayList.add(splits[0]); arrayList.add(splits[splits.length-1]);
+                final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_spinner_item, arrayList);
+                MainActivity.getInstance().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        spinnerBusDirection.setAdapter(arrayAdapter);
+                    }
+                });
+            }
+        });
+        thread.start();
+    }
+
+    /**
+     * After a click on search button
+     * @param view View
+     */
+    public void search(View view) {
+        Toast.makeText(getApplicationContext(),"Not yet implemented", Toast.LENGTH_LONG).show();
     }
 }

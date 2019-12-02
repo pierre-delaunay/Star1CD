@@ -8,43 +8,46 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/textViewDate"
+    <EditText
+        android:id="@+id/dateEditText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
         android:ems="10"
-        android:hint="@string/hint_selected_date" />
+        android:hint="@string/hint_selected_date"
+        android:inputType="date"/>
 
     <Button
-        android:id="@+id/button1"
+        android:id="@+id/dateButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/textViewDate"
+        android:layout_marginTop="50dp"
+        android:layout_toEndOf="@+id/dateEditText"
         android:text="@string/choose" />
 
-    <TextView
-        android:id="@+id/textViewTime"
+    <EditText
+        android:id="@+id/timeEditText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/button1"
+        android:layout_below="@+id/dateEditText"
         android:layout_marginTop="20dp"
         android:ems="10"
-        android:hint="@string/hint_selected_hour" />
+        android:hint="@string/hint_selected_hour"
+        android:inputType="none"/>
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/timeButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/textViewTime"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="110dp"
+        android:layout_toEndOf="@+id/timeEditText"
         android:text="@string/choose" />
 
     <TextView
         android:id="@+id/textViewBusLine"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/button2"
+        android:layout_below="@+id/timeEditText"
         android:layout_marginTop="10dp"
         android:ems="10"
         android:hint="@string/pick_bus_line" />
@@ -73,23 +76,23 @@
         android:layout_marginTop="10dp" />
 
     <Button
-        android:id="@+id/submit"
+        android:id="@+id/searchButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/spinnerBusDirection"
         android:layout_marginTop="10dp"
-        android:onClick="showNotificationNewVersion"
+        android:onClick="search"
         android:text="@string/search"/>
 
     <ProgressBar
         android:id="@+id/progressBar"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/submit"
+        android:layout_below="@id/searchButton"
         android:layout_marginTop="20dp"
         android:max="100"
         android:progress="10"
-        style="@style/Widget.AppCompat.ProgressBar.Horizontal"/>
+        style="@style/MyProgressBar"/>
 
 
     <TextView

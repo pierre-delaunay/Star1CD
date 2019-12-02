@@ -9,7 +9,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static DatabaseHelper mInstance = null;
 
-    private static final String DATABASE_NAME = "star.db";
+    private static final String DATABASE_NAME = "star_dev.db";
     private static final int DATABASE_VERSION = 1;
     private static final String TABLE_BUS_ROUTE = StarContract.BusRoutes.CONTENT_PATH;
     private static final String TABLE_TRIP = StarContract.Trips.CONTENT_PATH;
