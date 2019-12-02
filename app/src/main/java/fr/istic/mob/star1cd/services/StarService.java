@@ -146,7 +146,7 @@ public class StarService extends IntentService {
     }
 
     /**
-     * Download the zip archive and store it in external storage (path : /DCIM/Star/)
+     * Download the zip archive and store it internal storage (path : /data/com.package/files/ )
      *
      * @param url String 'http://ftp.keolis-rennes.com[...]'
      */
