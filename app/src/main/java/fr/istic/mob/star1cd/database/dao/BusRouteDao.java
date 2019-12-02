@@ -10,6 +10,11 @@ import java.util.List;
 
 import fr.istic.mob.star1cd.database.model.BusRoute;
 
+/**
+ * Bus Route DAO
+ * @version 1.0.1
+ * @author Charly C, Pierre D
+ */
 @Dao
 public interface BusRouteDao {
 
@@ -33,4 +38,10 @@ public interface BusRouteDao {
 
     @Query("SELECT route_long_name FROM busroute WHERE route_short_name = :name")
     String findRouteLongName(String name);
+
+    @Query("SELECT route_text_color FROM busroute WHERE route_short_name = :name")
+    String findRouteTextColor(String name);
+
+    @Query("SELECT route_color FROM busroute WHERE route_short_name = :name")
+    String findRouteColor(String name);
 }

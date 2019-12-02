@@ -35,6 +35,11 @@ import fr.istic.mob.star1cd.database.model.StopTime;
 import fr.istic.mob.star1cd.database.model.Trip;
 import fr.istic.mob.star1cd.utils.ZipManager;
 
+/**
+ * Star Service
+ * @version 1.0.1
+ * @author Charly C, Pierre D
+ */
 public class StarService extends IntentService {
 
     // adb forward tcp:8081 tcp:8081
@@ -79,7 +84,7 @@ public class StarService extends IntentService {
         try {
             statusCode = statusCodeFromJsonRequest(url);
             Log.i("StarService", "Status code of version request : " + String.valueOf(statusCode));
-            //MainActivity.getInstance().setProgress(5, "Checking new version");
+            //this.setProgress(5, "Checking new version");
 
             if (statusCode == 200) {
                 inputStream = new BufferedInputStream(urlConnection.getInputStream());
@@ -115,7 +120,6 @@ public class StarService extends IntentService {
                 this.setProgress(30, "Inserting stops");
                 appDatabase.stopDao().deleteAll();
                 readTxtFile("stops.txt");
-
 
                 this.setProgress(35, "Inserting trips");
                 appDatabase.tripDao().deleteAll();

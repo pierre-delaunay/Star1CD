@@ -8,6 +8,11 @@ import android.net.Uri;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+/**
+ * Star Provider
+ * @version 1.0.1
+ * @author Charly C, Pierre D
+ */
 public class StarProvider extends ContentProvider {
 
     @Override

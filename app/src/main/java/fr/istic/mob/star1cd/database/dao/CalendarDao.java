@@ -9,6 +9,11 @@ import java.util.List;
 
 import fr.istic.mob.star1cd.database.model.Calendar;
 
+/**
+ * Calendar DAO
+ * @version 1.0.1
+ * @author Charly C, Pierre D
+ */
 @Dao
 public interface CalendarDao {
 

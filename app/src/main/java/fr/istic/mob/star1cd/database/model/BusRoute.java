@@ -6,6 +6,11 @@ import androidx.room.PrimaryKey;
 
 import fr.istic.mob.star1cd.database.StarContract;
 
+/**
+ * Bus Route Model
+ * @version 1.0.1
+ * @author Charly C, Pierre D
+ */
 @Entity
 public class BusRoute {
 

@@ -1,38 +1,39 @@
 package fr.istic.mob.star1cd;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
-import android.Manifest;
-import android.app.Activity;
+import android.app.DatePickerDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Objects;
 
@@ -40,7 +41,6 @@ import fr.istic.mob.star1cd.database.AppDatabase;
 import fr.istic.mob.star1cd.database.model.BusRoute;
 import fr.istic.mob.star1cd.services.StarService;
 import fr.istic.mob.star1cd.utils.BusRoutesAdapter;
-import fr.istic.mob.star1cd.utils.SpinnerLineAsyncTask;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -49,11 +49,6 @@ public class MainActivity extends AppCompatActivity {
     private TextView textViewProgressBar;
     public static final String CHANNEL_ID = "channel_id";
     public static final String CHANNEL_NAME = "Notification Channel";
-    private static final int REQUEST_EXTERNAL_STORAGE = 1;
-    private static String[] PERMISSIONS_STORAGE = {
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-    };
     private Spinner spinnerBusLine, spinnerBusDirection;
     private Button searchButton, dateButton, timeButton;
     private EditText dateEditText, timeEditText;
@@ -81,6 +76,20 @@ public class MainActivity extends AppCompatActivity {
         this.searchButton = findViewById(R.id.searchButton);
         this.dateEditText = findViewById(R.id.dateEditText);
         this.timeEditText = findViewById(R.id.timeEditText);
+
+        dateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                handleDateButton();
+            }
+        });
+
+        timeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                handleTimeButton();
+            }
+        });
 
         // Hide spinner until a line has been selected by the user
         spinnerBusDirection.setVisibility(View.GONE);
@@ -162,27 +171,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Checks if the app has permission to write to device storage
-     * <p>
-     * If the app does not has permission then the user will be prompted to grant permissions
-     *
-     * @param activity, current activity
-     */
-    public static void verifyStoragePermissions(Activity activity) {
-        // Check if we have write permission
-        int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-
-        if (permission != PackageManager.PERMISSION_GRANTED) {
-            // We don't have permission so prompt the user
-            ActivityCompat.requestPermissions(
-                    activity,
-                    PERMISSIONS_STORAGE,
-                    REQUEST_EXTERNAL_STORAGE
-            );
-        }
-    }
-
-    /**
      * Set progress bar
      *
      * @param progress value of the progress
@@ -199,11 +187,6 @@ public class MainActivity extends AppCompatActivity {
      */
     public void initSpinnerBusLine() {
         try {
-            /*
-            ArrayAdapter<String> arrayAdapter = new SpinnerLineAsyncTask(this, spinnerBusLine).execute().get();
-            arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            spinnerBusLine.setAdapter(arrayAdapter);
-            */
 
             final AppDatabase appDatabase = AppDatabase.getDatabase(this);
             Thread thread = new Thread(new Runnable() {
@@ -211,29 +194,31 @@ public class MainActivity extends AppCompatActivity {
                 public void run() {
 
                     List<BusRoute> busRoutes = appDatabase.busRouteDao().getAll();
-                    final ArrayAdapter<BusRoute> adapter = new BusRoutesAdapter(
+                    ArrayList<String> busRoutesStr = new ArrayList<>();
+                    for (BusRoute busRoute : busRoutes) {
+                        busRoutesStr.add(busRoute.getRouteShortName());
+                    }
+
+                    final ArrayAdapter<String> adapter = new BusRoutesAdapter(
                             mInstance, R.layout.busroute_spinner_item,
-                            busRoutes);
+                            busRoutesStr);
                     spinnerBusLine.setAdapter(adapter);
                 }
             });
             thread.start();
 
-            /*
             spinnerBusLine.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     String selection = (String) parent.getItemAtPosition(position);
-                    //Log.i("spinnerSelection", selection);
                     initSpinnerBusDirection(selection);
                 }
 
                 @Override
                 public void onNothingSelected(AdapterView<?> parent) {
-
                 }
             });
-            */
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -274,5 +259,55 @@ public class MainActivity extends AppCompatActivity {
      */
     public void search(View view) {
         Toast.makeText(getApplicationContext(), "Not yet implemented", Toast.LENGTH_LONG).show();
+    }
+
+    /**
+     * Handle click on date button
+     * Source : https://github.com/trulymittal/DateTimePicker
+     */
+    private void handleDateButton() {
+        Calendar calendar = Calendar.getInstance();
+        int YEAR = calendar.get(Calendar.YEAR);
+        int MONTH = calendar.get(Calendar.MONTH);
+        int DATE = calendar.get(Calendar.DATE);
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker datePicker, int year, int month, int date) {
+
+                Calendar calendar1 = Calendar.getInstance();
+                calendar1.set(Calendar.YEAR, year);
+                calendar1.set(Calendar.MONTH, month);
+                calendar1.set(Calendar.DATE, date);
+                String dateText = DateFormat.format("dd/MM/yyyy", calendar1).toString();
+                dateEditText.setText(dateText);
+            }
+        }, YEAR, MONTH, DATE);
+
+        datePickerDialog.show();
+    }
+
+    /**
+     * Handle click on time button
+     */
+    private void handleTimeButton() {
+        Calendar calendar = Calendar.getInstance();
+        int HOUR = calendar.get(Calendar.HOUR);
+        int MINUTE = calendar.get(Calendar.MINUTE);
+        boolean is24HourFormat = DateFormat.is24HourFormat(this);
+
+        TimePickerDialog timePickerDialog = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker timePicker, int hour, int minute) {
+                Log.i("HandleTimeButton", "onTimeSet: " + hour + minute);
+                Calendar calendar1 = Calendar.getInstance();
+                calendar1.set(Calendar.HOUR, hour);
+                calendar1.set(Calendar.MINUTE, minute);
+                String dateText = DateFormat.format("h:mm a", calendar1).toString();
+                timeEditText.setText(dateText);
+            }
+        }, HOUR, MINUTE, is24HourFormat);
+
+        timePickerDialog.show();
     }
 }

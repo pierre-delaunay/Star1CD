@@ -19,6 +19,8 @@ import static android.content.ContentValues.TAG;
 
 /**
  * ZipManager
+ * @version 1.0.1
+ * @author Charly C, Pierre D
  * Source : https://mobikul.com/zip-unzip-file-folder-android-programmatically/
  */
 public class ZipManager {

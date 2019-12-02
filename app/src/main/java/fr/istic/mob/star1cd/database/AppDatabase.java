@@ -17,6 +17,11 @@ import fr.istic.mob.star1cd.database.model.Stop;
 import fr.istic.mob.star1cd.database.model.StopTime;
 import fr.istic.mob.star1cd.database.model.Trip;
 
+/**
+ * App Database, using Room library
+ * @version 1.0.1
+ * @author Charly C, Pierre D
+ */
 @Database(entities = {BusRoute.class, Calendar.class, Stop.class, StopTime.class, Trip.class}, version = 2)
 public abstract class AppDatabase extends RoomDatabase {
 

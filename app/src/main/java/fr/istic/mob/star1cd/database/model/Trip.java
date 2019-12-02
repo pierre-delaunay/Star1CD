@@ -6,6 +6,11 @@ import androidx.room.PrimaryKey;
 
 import fr.istic.mob.star1cd.database.StarContract;
 
+/**
+ * Trip model
+ * @version 1.0.1
+ * @author Charly C, Pierre D
+ */
 @Entity
 public class Trip {
 
