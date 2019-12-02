@@ -4,10 +4,12 @@ import android.app.Activity;
 import android.os.AsyncTask;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.istic.mob.star1cd.R;
 import fr.istic.mob.star1cd.database.AppDatabase;
 import fr.istic.mob.star1cd.database.model.BusRoute;
 
@@ -29,6 +31,6 @@ public class SpinnerLineAsyncTask extends AsyncTask<String, String, ArrayAdapter
         for (BusRoute busRoute : busRouteList) {
             arrayList.add(busRoute.getRouteShortName());
         }
-        return new ArrayAdapter<String>(activity, android.R.layout.simple_spinner_item, arrayList);
+        return new ArrayAdapter<String>(activity, R.layout.busroute_spinner_item, arrayList);
     }
 }

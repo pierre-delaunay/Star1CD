@@ -14,6 +14,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
@@ -32,10 +33,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import fr.istic.mob.star1cd.database.AppDatabase;
+import fr.istic.mob.star1cd.database.model.BusRoute;
 import fr.istic.mob.star1cd.services.StarService;
+import fr.istic.mob.star1cd.utils.BusRoutesAdapter;
 import fr.istic.mob.star1cd.utils.SpinnerLineAsyncTask;
 
 public class MainActivity extends AppCompatActivity {
@@ -195,9 +199,27 @@ public class MainActivity extends AppCompatActivity {
      */
     public void initSpinnerBusLine() {
         try {
+            /*
             ArrayAdapter<String> arrayAdapter = new SpinnerLineAsyncTask(this, spinnerBusLine).execute().get();
             arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerBusLine.setAdapter(arrayAdapter);
+            */
+
+            final AppDatabase appDatabase = AppDatabase.getDatabase(this);
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+
+                    List<BusRoute> busRoutes = appDatabase.busRouteDao().getAll();
+                    final ArrayAdapter<BusRoute> adapter = new BusRoutesAdapter(
+                            mInstance, R.layout.busroute_spinner_item,
+                            busRoutes);
+                    spinnerBusLine.setAdapter(adapter);
+                }
+            });
+            thread.start();
+
+            /*
             spinnerBusLine.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -211,6 +233,7 @@ public class MainActivity extends AppCompatActivity {
 
                 }
             });
+            */
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -230,7 +253,8 @@ public class MainActivity extends AppCompatActivity {
                 String shortName = appDatabase.busRouteDao().findRouteLongName(routeShortName);
                 String[] splits = shortName.split(" <> ");
                 ArrayList<String> arrayList = new ArrayList<>();
-                arrayList.add(splits[0]); arrayList.add(splits[splits.length-1]);
+                arrayList.add(splits[0]);
+                arrayList.add(splits[splits.length - 1]);
                 final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_spinner_item, arrayList);
                 MainActivity.getInstance().runOnUiThread(new Runnable() {
                     @Override
@@ -245,9 +269,10 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * After a click on search button
+     *
      * @param view View
      */
     public void search(View view) {
-        Toast.makeText(getApplicationContext(),"Not yet implemented", Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(), "Not yet implemented", Toast.LENGTH_LONG).show();
     }
 }
