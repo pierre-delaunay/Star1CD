@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import fr.istic.mob.star1cd.LoadingActivity;
 import fr.istic.mob.star1cd.MainActivity;
 import fr.istic.mob.star1cd.database.AppDatabase;
 import fr.istic.mob.star1cd.database.model.BusRoute;
@@ -121,6 +122,9 @@ public class StarService extends IntentService {
                 appDatabase.stopDao().deleteAll();
                 readTxtFile("stops.txt");
 
+                /*
+
+
                 this.setProgress(35, "Inserting trips");
                 appDatabase.tripDao().deleteAll();
                 readTxtFile("trips.txt");
@@ -136,8 +140,10 @@ public class StarService extends IntentService {
                 if (stopTimes.size() != 0) {
                     appDatabase.stopTimeDao().insertAll(stopTimes);
                 }
+                 */
 
                 this.setProgress(100, "Done with database inserts");
+                LoadingActivity.getInstance().switchMainActivity();
             }
 
         } catch (Exception e) {
@@ -404,10 +410,10 @@ public class StarService extends IntentService {
      * @param status   message that will be displayed
      */
     private void setProgress(final int progress, final String status) {
-        MainActivity.getInstance().runOnUiThread(new Runnable() {
+        LoadingActivity.getInstance().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                MainActivity.getInstance().setProgress(progress, status);
+                LoadingActivity.getInstance().setProgress(progress, status);
             }
         });
     }

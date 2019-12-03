@@ -45,8 +45,6 @@ import fr.istic.mob.star1cd.utils.BusRoutesAdapter;
 public class MainActivity extends AppCompatActivity {
 
     private static MainActivity mInstance;
-    private ProgressBar progressBar;
-    private TextView textViewProgressBar;
     public static final String CHANNEL_ID = "channel_id";
     public static final String CHANNEL_NAME = "Notification Channel";
     private Spinner spinnerBusLine, spinnerBusDirection;
@@ -66,9 +64,6 @@ public class MainActivity extends AppCompatActivity {
 
         mInstance = this;
 
-        this.progressBar = findViewById(R.id.progressBar);
-        this.progressBar.setScaleY(3f);
-        this.textViewProgressBar = findViewById(R.id.textViewProgressBar);
         this.spinnerBusLine = findViewById(R.id.spinnerBusLine);
         this.spinnerBusDirection = findViewById(R.id.spinnerBusDirection);
         this.dateButton = findViewById(R.id.dateButton);
@@ -156,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, StarService.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-        PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, 0);
+        PendingIntent pendingIntent = PendingIntent.getService(LoadingActivity.getInstance(), 0, intent, 0);
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
         NotificationCompat.Builder notifBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
@@ -170,16 +165,6 @@ public class MainActivity extends AppCompatActivity {
         notificationManager.notify(1, notifBuilder.build());
     }
 
-    /**
-     * Set progress bar
-     *
-     * @param progress value of the progress
-     * @param status   description of the current task
-     */
-    public void setProgress(int progress, String status) {
-        this.progressBar.setProgress(progress);
-        this.textViewProgressBar.setText(status);
-    }
 
     /**
      * Initiliaze the bus line spinner with an async task

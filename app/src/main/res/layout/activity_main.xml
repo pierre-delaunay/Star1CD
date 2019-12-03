@@ -84,24 +84,4 @@
         android:onClick="search"
         android:text="@string/search"/>
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/searchButton"
-        android:layout_marginTop="20dp"
-        android:max="100"
-        android:progress="10"
-        style="@style/MyProgressBar"/>
-
-
-    <TextView
-        android:id="@+id/textViewProgressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/progressBar"
-        android:layout_marginTop="10dp"
-        android:ems="20"
-        android:hint="@string/progressbar_initialize" />
-
 </RelativeLayout>

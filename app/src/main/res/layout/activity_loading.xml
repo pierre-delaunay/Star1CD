@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/relativeLayoutId"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".LoadingActivity">
+
+    <ImageView
+        android:id="@+id/imageViewLogo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/logo_star_240"
+        android:background="@drawable/imageview_border_shape"/>
+
+    <ProgressBar
+        android:id="@+id/loadingBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/imageViewLogo"
+        android:layout_marginTop="20dp"
+        android:layout_centerInParent="true"
+        android:layout_centerVertical="true"
+        android:max="100"
+        android:progress="10"
+        style="@style/MyProgressBar"/>
+
+    <TextView
+        android:id="@+id/textViewLoadingBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/loadingBar"
+        android:layout_marginTop="10dp"
+        android:gravity="center_horizontal"
+        android:ems="30"
+        android:hint="@string/progressbar_initialize" />
+
+</RelativeLayout>
