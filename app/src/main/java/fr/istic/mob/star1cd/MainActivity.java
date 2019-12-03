@@ -26,9 +26,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -148,11 +146,12 @@ public class MainActivity extends AppCompatActivity {
      */
     public void createNotification() {
 
-        Intent intent = new Intent(this, StarService.class);
+        //Intent intent = new Intent(this, StarService.class);
+        Intent intent = new Intent(this, LoadingActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-        PendingIntent pendingIntent = PendingIntent.getService(LoadingActivity.getInstance(), 0, intent, 0);
-
+        //PendingIntent pendingIntent = PendingIntent.getService(LoadingActivity.getInstance(), 0, intent, 0);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
         NotificationCompat.Builder notifBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle(getResources().getString(R.string.app_name))
@@ -164,7 +163,6 @@ public class MainActivity extends AppCompatActivity {
 
         notificationManager.notify(1, notifBuilder.build());
     }
-
 
     /**
      * Initiliaze the bus line spinner with an async task
@@ -294,5 +292,12 @@ public class MainActivity extends AppCompatActivity {
         }, HOUR, MINUTE, is24HourFormat);
 
         timePickerDialog.show();
+    }
+
+    /**
+     * Block back press button
+     */
+    @Override
+    public void onBackPressed() {
     }
 }

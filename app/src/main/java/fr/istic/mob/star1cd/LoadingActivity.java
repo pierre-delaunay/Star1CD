@@ -86,8 +86,12 @@ public class LoadingActivity extends AppCompatActivity {
         }
     }
 
-    public void switchMainActivity() {
+    /**
+     * Start the main activity before finishing this one
+     */
+    public void switchToMainActivity() {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
+        finish();
     }
 }

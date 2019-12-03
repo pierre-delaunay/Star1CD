@@ -2,7 +2,9 @@ package fr.istic.mob.star1cd.services;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
@@ -27,7 +29,6 @@ import java.util.Date;
 import java.util.List;
 
 import fr.istic.mob.star1cd.LoadingActivity;
-import fr.istic.mob.star1cd.MainActivity;
 import fr.istic.mob.star1cd.database.AppDatabase;
 import fr.istic.mob.star1cd.database.model.BusRoute;
 import fr.istic.mob.star1cd.database.model.Calendar;
@@ -38,8 +39,9 @@ import fr.istic.mob.star1cd.utils.ZipManager;
 
 /**
  * Star Service
- * @version 1.0.1
+ *
  * @author Charly C, Pierre D
+ * @version 1.0.1
  */
 public class StarService extends IntentService {
 
@@ -94,6 +96,7 @@ public class StarService extends IntentService {
                 JSONArray jsonArray = new JSONArray(response);
                 JSONObject jsonObject = jsonArray.getJSONObject(0).getJSONObject("fields");
                 String dateFinValidite = jsonObject.getString("finvalidite");
+                //storeInSharedPrefs("finvalidite", dateFinValidite);
 
                 if (!isAfterExpirationDate(dateFinValidite)) {
                     Log.i("StarService", "Downloading first json object");
@@ -123,8 +126,6 @@ public class StarService extends IntentService {
                 readTxtFile("stops.txt");
 
                 /*
-
-
                 this.setProgress(35, "Inserting trips");
                 appDatabase.tripDao().deleteAll();
                 readTxtFile("trips.txt");
@@ -143,7 +144,7 @@ public class StarService extends IntentService {
                  */
 
                 this.setProgress(100, "Done with database inserts");
-                LoadingActivity.getInstance().switchMainActivity();
+                LoadingActivity.getInstance().switchToMainActivity();
             }
 
         } catch (Exception e) {
@@ -425,5 +426,31 @@ public class StarService extends IntentService {
      */
     private boolean isDatabaseEmpty() {
         return appDatabase.busRouteDao().findAny().size() == 0;
+    }
+
+    /**
+     * Store string in shared preferences
+     * @param key String
+     * @param value String
+     */
+    private void storeInSharedPrefs(String key, String value) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString(key, value);
+        editor.apply();
+    }
+
+    /**
+     * Retrieve string value from shared preferences
+     * @param key String
+     * @return String value
+     */
+    private String retrieveFromSharedPrefs(String key) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String value = preferences.getString(key, "");
+        if (!value.equalsIgnoreCase("")) {
+            return value;
+        }
+        return null;
     }
 }
