@@ -91,42 +91,13 @@ public class MainActivity extends AppCompatActivity {
 
         createNotification();
 
-        if (isNetworkAvailable(this)) {
+        if (StarService.isNetworkAvailable(this)) {
             Log.i("StarService", "Network is available");
-            //Intent intent = new Intent(Intent.ACTION_SYNC, null, this, StarService.class);
-            //startService(intent);
         }
+
         initSpinnerBusLine();
     }
-
-    /**
-     * isNetworkAvailable
-     *
-     * @param context Context
-     * @return boolean, true if network available
-     */
-    public boolean isNetworkAvailable(Context context) {
-        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            Network activeNetwork = connectivityManager.getActiveNetwork();
-            NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork);
-            if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
-                return true;
-            }
-            if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
-                return true;
-            }
-            if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
-                return true;
-            }
-            return false;
-        } else {
-            // getActiveNetworkInfo is deprecated on API 29
-            NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-            return activeNetworkInfo.isConnected();
-        }
-    }
-
+    
     /**
      * Create notification channel, API 26+
      */
@@ -145,21 +116,19 @@ public class MainActivity extends AppCompatActivity {
      * Show new notification - new version available
      */
     public void createNotification() {
-
-        //Intent intent = new Intent(this, StarService.class);
         Intent intent = new Intent(this, LoadingActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-        //PendingIntent pendingIntent = PendingIntent.getService(LoadingActivity.getInstance(), 0, intent, 0);
         PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
         NotificationCompat.Builder notifBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle(getResources().getString(R.string.app_name))
-                .setContentText(getResources().getString(R.string.new_version_available))
+                .setContentTitle(getResources().getString(R.string.title_notification))
+                .setContentText(getResources().getString(R.string.content_notification))
                 .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.icon_star_app))
                 .setSmallIcon(R.drawable.ic_notification_version)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .addAction(R.drawable.ic_accept, "Download", pendingIntent);
+                .setContentIntent(pendingIntent);
+        //.addAction(R.drawable.ic_accept, "Download", pendingIntent);
 
         notificationManager.notify(1, notifBuilder.build());
     }
@@ -299,5 +268,6 @@ public class MainActivity extends AppCompatActivity {
      */
     @Override
     public void onBackPressed() {
+        // do nothing
     }
 }

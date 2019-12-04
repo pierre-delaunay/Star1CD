@@ -36,7 +36,7 @@ public class LoadingActivity extends AppCompatActivity {
         progressBar.setScaleY(3f);
         textViewProgressBar = findViewById(R.id.textViewLoadingBar);
 
-        if (isNetworkAvailable(this)) {
+        if (StarService.isNetworkAvailable(this)) {
             Log.i("StarService", "Network is available");
             Intent intent = new Intent(Intent.ACTION_SYNC, null, this, StarService.class);
             startService(intent);
@@ -56,34 +56,6 @@ public class LoadingActivity extends AppCompatActivity {
     public void setProgress(int progress, String status) {
         this.progressBar.setProgress(progress);
         this.textViewProgressBar.setText(status);
-    }
-
-    /**
-     * isNetworkAvailable
-     *
-     * @param context Context
-     * @return boolean, true if network available
-     */
-    public boolean isNetworkAvailable(Context context) {
-        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            Network activeNetwork = connectivityManager.getActiveNetwork();
-            NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork);
-            if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
-                return true;
-            }
-            if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
-                return true;
-            }
-            if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
-                return true;
-            }
-            return false;
-        } else {
-            // getActiveNetworkInfo is deprecated on API 29
-            NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-            return activeNetworkInfo.isConnected();
-        }
     }
 
     /**

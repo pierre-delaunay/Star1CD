@@ -7,6 +7,7 @@
     <string name="pick_bus_line">Pick bus line</string>
     <string name="pick_bus_direction">Pick bus direction</string>
     <string name="search">Search</string>
-    <string name="new_version_available">New version available</string>
+    <string name="title_notification">New version available</string>
+    <string name="content_notification">Click to download</string>
     <string name="progressbar_initialize">Initialization</string>
 </resources>

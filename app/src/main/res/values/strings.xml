@@ -7,6 +7,7 @@
     <string name="pick_bus_line">Choisir la ligne de bus</string>
     <string name="pick_bus_direction">Choisir la direction</string>
     <string name="search">Rechercher</string>
-    <string name="new_version_available">Nouvelle version disponible</string>
+    <string name="title_notification">Nouvelle version disponible</string>
+    <string name="content_notification">Cliquez ici pour télécharger</string>
     <string name="progressbar_initialize">Initialisation</string>
 </resources>

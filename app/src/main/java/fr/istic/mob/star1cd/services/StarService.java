@@ -1,8 +1,14 @@
 package fr.istic.mob.star1cd.services;
 
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -27,6 +33,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import fr.istic.mob.star1cd.LoadingActivity;
 import fr.istic.mob.star1cd.database.AppDatabase;
@@ -55,8 +62,9 @@ public class StarService extends IntentService {
             "https://data.explore.star.fr/explore/dataset/tco-busmetro-horaires-gtfs-versions-td/download/?format=json&timezone=Europe/Berlin";
     private final static String zipFileName = "star.zip";
     private int i, k;
-    private List<StopTime> stopTimes = new ArrayList<StopTime>();
-    private List<Trip> trips = new ArrayList<Trip>();
+    private List<StopTime> stopTimes = new ArrayList<>();
+    private List<Trip> trips = new ArrayList<>();
+    private static final String STORED_DATE_KEY = "finvalidite";
 
     /**
      * Creates an IntentService.  Invoked by your subclass's constructor.
@@ -81,13 +89,12 @@ public class StarService extends IntentService {
      */
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        String url = URL_VERSION;
         appDatabase = AppDatabase.getDatabase(this);
 
         try {
-            statusCode = statusCodeFromJsonRequest(url);
-            Log.i("StarService", "Status code of version request : " + String.valueOf(statusCode));
-            //this.setProgress(5, "Checking new version");
+            statusCode = statusCodeFromJsonRequest(URL_VERSION);
+            Log.i("StarService", "Status code of version request : " + statusCode);
+            this.setProgress(5, "Checking new version");
 
             if (statusCode == 200) {
                 inputStream = new BufferedInputStream(urlConnection.getInputStream());
@@ -96,7 +103,7 @@ public class StarService extends IntentService {
                 JSONArray jsonArray = new JSONArray(response);
                 JSONObject jsonObject = jsonArray.getJSONObject(0).getJSONObject("fields");
                 String dateFinValidite = jsonObject.getString("finvalidite");
-                //storeInSharedPrefs("finvalidite", dateFinValidite);
+                storeInSharedPrefs("finvalidite", dateFinValidite);
 
                 if (!isAfterExpirationDate(dateFinValidite)) {
                     Log.i("StarService", "Downloading first json object");
@@ -125,7 +132,6 @@ public class StarService extends IntentService {
                 appDatabase.stopDao().deleteAll();
                 readTxtFile("stops.txt");
 
-                /*
                 this.setProgress(35, "Inserting trips");
                 appDatabase.tripDao().deleteAll();
                 readTxtFile("trips.txt");
@@ -133,7 +139,6 @@ public class StarService extends IntentService {
                 if (trips.size() != 0) {
                     appDatabase.tripDao().insertAll(trips);
                 }
-
                 this.setProgress(40, "Inserting stop times");
                 appDatabase.stopTimeDao().deleteAll();
                 readTxtFile("stop_times.txt");
@@ -141,7 +146,6 @@ public class StarService extends IntentService {
                 if (stopTimes.size() != 0) {
                     appDatabase.stopTimeDao().insertAll(stopTimes);
                 }
-                 */
 
                 this.setProgress(100, "Done with database inserts");
                 LoadingActivity.getInstance().switchToMainActivity();
@@ -153,6 +157,61 @@ public class StarService extends IntentService {
     }
 
     /**
+     * isNetworkAvailable
+     *
+     * @param context Context
+     * @return boolean, true if network available
+     */
+    public static boolean isNetworkAvailable(Context context) throws NullPointerException {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Network activeNetwork = connectivityManager.getActiveNetwork();
+            NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork);
+            if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                return true;
+            }
+            if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                return true;
+            }
+            return (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET));
+        } else {
+            // getActiveNetworkInfo is deprecated on API 29
+            NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+            return activeNetworkInfo.isConnected();
+        }
+    }
+
+    /**
+     * @return true if a new version is available
+     */
+    private boolean isNewVersionAvailable() {
+        String storedDate = retrieveFromSharedPrefs(STORED_DATE_KEY);
+        Objects.requireNonNull(storedDate);
+        try {
+            statusCode = statusCodeFromJsonRequest(URL_VERSION);
+            Log.i("StarService", "Status code of version request : " + String.valueOf(statusCode));
+
+            if (statusCode == 200) {
+                inputStream = new BufferedInputStream(urlConnection.getInputStream());
+                String response = inputStreamToString(inputStream);
+
+                JSONArray jsonArray = new JSONArray(response);
+                JSONObject jsonObject = jsonArray.getJSONObject(0).getJSONObject("fields");
+                String dateFinValidite1 = jsonObject.getString("finvalidite");
+
+                jsonObject = jsonArray.getJSONObject(1).getJSONObject("fields");
+                String dateFinValidite2 = jsonObject.getString("finvalidite");
+
+                return (!storedDate.equals(dateFinValidite1) || !storedDate.equals(dateFinValidite2));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+
+    /**
      * Download the zip archive and store it internal storage (path : /data/com.package/files/ )
      *
      * @param url String 'http://ftp.keolis-rennes.com[...]'
@@ -160,13 +219,6 @@ public class StarService extends IntentService {
     private void downloadZip(String url) {
         try {
             URL urlDownloadZip = new URL(url);
-
-            String root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).toString();
-
-            final File f = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), "Star");
-            if (!f.exists()) {
-                f.mkdir();
-            }
 
             HttpURLConnection urlConnection = (HttpURLConnection) urlDownloadZip.openConnection();
             urlConnection.connect();
@@ -264,6 +316,25 @@ public class StarService extends IntentService {
             Date expirationDate = sdf.parse(expirationDateString);
             Date todayDate = new Date();
             return (todayDate.after(expirationDate));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
+     * Compare two dates
+     *
+     * @param stringDate1 date as a string
+     * @param stringDate2 date as a string
+     * @return true if date1 after date2
+     */
+    private static boolean isAfterExperiationDate(String stringDate1, String stringDate2) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            Date date1 = sdf.parse(stringDate1);
+            Date date2 = sdf.parse(stringDate2);
+            return (date1.after(date2));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -430,7 +501,8 @@ public class StarService extends IntentService {
 
     /**
      * Store string in shared preferences
-     * @param key String
+     *
+     * @param key   String
      * @param value String
      */
     private void storeInSharedPrefs(String key, String value) {
@@ -442,6 +514,7 @@ public class StarService extends IntentService {
 
     /**
      * Retrieve string value from shared preferences
+     *
      * @param key String
      * @return String value
      */
