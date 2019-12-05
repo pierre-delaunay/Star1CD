@@ -48,7 +48,7 @@ import fr.istic.mob.star1cd.utils.ZipManager;
  * Star Service
  *
  * @author Charly C, Pierre D
- * @version 1.0.1
+ * @version 1.0.2
  */
 public class StarService extends IntentService {
 
