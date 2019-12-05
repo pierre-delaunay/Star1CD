@@ -24,6 +24,9 @@ public interface BusRouteDao {
     @Delete
     void delete(BusRoute busRoute);
 
+    @Query("DELETE FROM busroute WHERE _id = :id")
+    void deleteById(long id);
+
     @Query("DELETE FROM busroute")
     void deleteAll();
 
