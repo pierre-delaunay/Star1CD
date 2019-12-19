@@ -8,8 +8,9 @@ import fr.istic.mob.star1cd.database.StarContract;
 
 /**
  * Stop Time model
- * @version 1.0.1
+ *
  * @author Charly C, Pierre D
+ * @version 1.0.1
  */
 @Entity
 public class StopTime {
@@ -28,7 +29,7 @@ public class StopTime {
     @ColumnInfo(name = StarContract.StopTimes.StopTimeColumns.STOP_SEQUENCE)
     private int stopSequence;
 
-    public StopTime () {
+    public StopTime() {
     }
 
     public int getId() {

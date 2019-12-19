@@ -1,19 +1,21 @@
 package fr.istic.mob.star1cd.database.dao;
 
+import android.database.Cursor;
+
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import fr.istic.mob.star1cd.database.model.BusRoute;
 
 /**
  * Bus Route DAO
- * @version 1.0.1
+ *
  * @author Charly C, Pierre D
+ * @version 1.0.1
  */
 @Dao
 public interface BusRouteDao {
@@ -29,6 +31,12 @@ public interface BusRouteDao {
 
     @Query("DELETE FROM busroute")
     void deleteAll();
+
+    @Query("SELECT * FROM busroute")
+    Cursor selectAll();
+
+    @Query("SELECT * FROM busroute WHERE _id = :id")
+    Cursor selectById(int id);
 
     @Query("SELECT * FROM busroute")
     List<BusRoute> getAll();

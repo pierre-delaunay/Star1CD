@@ -18,8 +18,9 @@ import fr.istic.mob.star1cd.database.model.BusRoute;
 
 /**
  * Bus Routes Adapter
- * @version 1.0.1
+ *
  * @author Charly C, Pierre D
+ * @version 1.0.1
  */
 public class BusRoutesAdapter extends ArrayAdapter<String> {
 

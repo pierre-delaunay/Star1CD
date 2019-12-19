@@ -38,6 +38,14 @@
             android:name=".services.StarService"
             android:enabled="true"
             android:label="@string/app_name" />
+
+        <provider
+            android:name="fr.istic.mob.star1cd.providers.StarProvider"
+            android:authorities="fr.istic.starproviderCD"
+            android:enabled="true"
+            android:exported="true">
+        </provider>
+
     </application>
 
 </manifest>
