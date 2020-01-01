@@ -11,8 +11,9 @@ import fr.istic.mob.star1cd.database.model.Trip;
 
 /**
  * Trip DAO
- * @version 1.0.1
+ *
  * @author Charly C, Pierre D
+ * @version 1.0.1
  */
 @Dao
 public interface TripDao {
@@ -34,4 +35,7 @@ public interface TripDao {
 
     @Query("SELECT * FROM trip WHERE _id = :id")
     Trip findById(int id);
+
+    @Query("SELECT * FROM trip WHERE route_id = :routeId AND direction_id = :directionId LIMIT 1")
+    Trip find(int routeId, int directionId);
 }

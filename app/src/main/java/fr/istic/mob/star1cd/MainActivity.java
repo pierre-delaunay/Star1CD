@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
 
         initSpinnerBusLine();
     }
-    
+
     /**
      * Create notification channel, API 26+
      */
