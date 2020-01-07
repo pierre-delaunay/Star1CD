@@ -2,6 +2,7 @@ package fr.istic.mob.star1cd.database.model;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 
 import fr.istic.mob.star1cd.database.StarContract;
@@ -12,10 +13,21 @@ import fr.istic.mob.star1cd.database.StarContract;
  * @author Charly C, Pierre D
  * @version 1.0.1
  */
-@Entity
+@Entity(foreignKeys = {
+        @ForeignKey(
+                entity = BusRoute.class,
+                parentColumns = StarContract.BusRoutes.BusRouteColumns._ID,
+                childColumns = StarContract.Trips.TripColumns.ROUTE_ID
+        ),
+        @ForeignKey(
+                entity = Calendar.class,
+                parentColumns = StarContract.Calendar.CalendarColumns._ID,
+                childColumns = StarContract.Trips.TripColumns.SERVICE_ID
+        )
+})
 public class Trip {
-
-    @PrimaryKey(autoGenerate = true)
+    
+    @PrimaryKey
     @ColumnInfo(name = StarContract.Trips.TripColumns._ID)
     private int id;
     @ColumnInfo(name = StarContract.Trips.TripColumns.ROUTE_ID)

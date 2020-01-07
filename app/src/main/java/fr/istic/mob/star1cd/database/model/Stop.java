@@ -9,13 +9,15 @@ import fr.istic.mob.star1cd.database.StarContract;
 
 /**
  * Stop model
- * @version 1.0.1
+ *
  * @author Charly C, Pierre D
+ * @version 1.0.1
  */
 @Entity
 public class Stop {
 
-    @PrimaryKey @NonNull
+    @PrimaryKey
+    @NonNull
     @ColumnInfo(name = StarContract.Stops.StopColumns._ID)
     private String id;
     @ColumnInfo(name = StarContract.Stops.StopColumns.NAME)

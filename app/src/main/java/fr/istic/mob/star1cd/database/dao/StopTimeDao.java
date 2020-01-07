@@ -4,13 +4,13 @@ import android.database.Cursor;
 
 import androidx.room.Dao;
 import androidx.room.Delete;
+
 import androidx.room.Insert;
 import androidx.room.Query;
 
 import java.util.List;
 
 import fr.istic.mob.star1cd.database.model.StopTime;
-
 /**
  * StopTime DAO
  *

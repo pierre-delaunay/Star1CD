@@ -1,10 +1,8 @@
 package fr.istic.mob.star1cd;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.sqlite.db.SimpleSQLiteQuery;
 
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,13 +10,6 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import fr.istic.mob.star1cd.database.AppDatabase;
-import fr.istic.mob.star1cd.database.StarContract;
-import fr.istic.mob.star1cd.database.model.Stop;
-import fr.istic.mob.star1cd.database.model.Trip;
 import fr.istic.mob.star1cd.services.StarService;
 
 public class LoadingActivity extends AppCompatActivity {
@@ -81,13 +72,12 @@ public class LoadingActivity extends AppCompatActivity {
         thread.start();
         */
 
-        /*
         if (StarService.isNetworkAvailable(this)) {
             Log.i("StarService", "Network is available");
             Intent intent = new Intent(Intent.ACTION_SYNC, null, this, StarService.class);
             startService(intent);
         }
-        */
+
     }
 
     public static LoadingActivity getInstance() {

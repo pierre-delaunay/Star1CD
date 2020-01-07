@@ -8,13 +8,14 @@ import fr.istic.mob.star1cd.database.StarContract;
 
 /**
  * Calendar Model
- * @version 1.0.1
+ *
  * @author Charly C, Pierre D
+ * @version 1.0.1
  */
 @Entity
 public class Calendar {
 
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey
     @ColumnInfo(name = StarContract.Calendar.CalendarColumns._ID)
     private int id;
     @ColumnInfo(name = StarContract.Calendar.CalendarColumns.MONDAY)

@@ -9,7 +9,6 @@ import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.os.Build;
-import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -388,7 +387,7 @@ public class StarService extends IntentService {
         switch (fileName) {
             case "routes.txt":
                 BusRoute busRoute = new BusRoute();
-                busRoute.setId(id);
+                busRoute.setId(Integer.valueOf(line[0]));
                 busRoute.setRouteShortName(line[2]);
                 busRoute.setRouteLongName(line[3]);
                 busRoute.setRouteDescription(line[4]);
@@ -433,7 +432,8 @@ public class StarService extends IntentService {
                 break;
             case "trips.txt":
                 Trip trip = new Trip();
-                trip.setId(id);
+                //trip.setId(id);
+                trip.setId(Integer.valueOf(line[2]));
                 trip.setRouteId(Integer.valueOf(line[0]));
                 trip.setServiceId(Integer.valueOf(line[1]));
                 trip.setTripHeadsign(line[3]);

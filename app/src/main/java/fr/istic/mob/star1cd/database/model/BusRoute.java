@@ -8,13 +8,14 @@ import fr.istic.mob.star1cd.database.StarContract;
 
 /**
  * Bus Route Model
- * @version 1.0.1
+ *
  * @author Charly C, Pierre D
+ * @version 1.0.1
  */
 @Entity
 public class BusRoute {
 
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey
     @ColumnInfo(name = StarContract.BusRoutes.BusRouteColumns._ID)
     private int id;
     @ColumnInfo(name = StarContract.BusRoutes.BusRouteColumns.SHORT_NAME)

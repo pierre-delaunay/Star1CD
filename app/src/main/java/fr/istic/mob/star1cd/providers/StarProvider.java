@@ -9,7 +9,6 @@ import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.sqlite.db.SimpleSQLiteQuery;
 
 import fr.istic.mob.star1cd.database.AppDatabase;
 import fr.istic.mob.star1cd.database.StarContract;
@@ -38,7 +37,7 @@ public class StarProvider extends ContentProvider {
         URI_MATCHER.addURI(StarContract.AUTHORITY, StarContract.BusRoutes.CONTENT_PATH, ALL_BUS_ROUTES);
         URI_MATCHER.addURI(StarContract.AUTHORITY, StarContract.BusRoutes.CONTENT_PATH + "/#", BUS_ROUTE_BY_ID);
         URI_MATCHER.addURI(StarContract.AUTHORITY, StarContract.Stops.CONTENT_PATH, BUS_ROUTE_STOPS);
-        URI_MATCHER.addURI(StarContract.AUTHORITY, StarContract.Stops.CONTENT_PATH, STOP_TIMES_AT_STOP);
+        URI_MATCHER.addURI(StarContract.AUTHORITY, StarContract.StopTimes.CONTENT_PATH, STOP_TIMES_AT_STOP);
         URI_MATCHER.addURI(StarContract.AUTHORITY, StarContract.Stops.CONTENT_PATH, ROUTE_DETAIL);
     }
 
