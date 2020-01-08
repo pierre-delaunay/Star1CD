@@ -12,7 +12,6 @@ import androidx.sqlite.db.SupportSQLiteQuery;
 import java.util.List;
 
 import fr.istic.mob.star1cd.database.model.Stop;
-import fr.istic.mob.star1cd.database.model.Trip;
 
 /**
  * Stop DAO
@@ -42,7 +41,8 @@ public interface StopDao {
             "WHERE StopTime.trip_id = Trip._id " +
             "AND StopTime.stop_id = Stop._id " +
             "AND Trip.route_id = :routeId " +
-            "AND Trip._id = :tripId")
+            "AND Trip._id = :tripId " +
+            "ORDER BY StopTime.arrival_time")
     Cursor findStops(int tripId, int routeId);
 
     @RawQuery

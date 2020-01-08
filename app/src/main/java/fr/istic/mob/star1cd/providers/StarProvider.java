@@ -35,10 +35,10 @@ public class StarProvider extends ContentProvider {
 
     static {
         URI_MATCHER.addURI(StarContract.AUTHORITY, StarContract.BusRoutes.CONTENT_PATH, ALL_BUS_ROUTES);
-        URI_MATCHER.addURI(StarContract.AUTHORITY, StarContract.BusRoutes.CONTENT_PATH + "/#", BUS_ROUTE_BY_ID);
+        //URI_MATCHER.addURI(StarContract.AUTHORITY, StarContract.BusRoutes.CONTENT_PATH + "/#", BUS_ROUTE_BY_ID);
         URI_MATCHER.addURI(StarContract.AUTHORITY, StarContract.Stops.CONTENT_PATH, BUS_ROUTE_STOPS);
         URI_MATCHER.addURI(StarContract.AUTHORITY, StarContract.StopTimes.CONTENT_PATH, STOP_TIMES_AT_STOP);
-        URI_MATCHER.addURI(StarContract.AUTHORITY, StarContract.Stops.CONTENT_PATH, ROUTE_DETAIL);
+        //URI_MATCHER.addURI(StarContract.AUTHORITY, StarContract.Stops.CONTENT_PATH, ROUTE_DETAIL);
     }
 
     @Override
@@ -72,10 +72,10 @@ public class StarProvider extends ContentProvider {
                         selectionArgs[1],
                         Long.valueOf(selectionArgs[2]),
                         selectionArgs[3]);
-            case ROUTE_DETAIL:
+            //case ROUTE_DETAIL:
                 // selectionArgs[0] : trip_id
                 // selectionArgs[1] : arrivalTime
-                return AppDatabase.getDatabase(getContext()).stopTimeDao().getRouteDetail(selectionArgs[0],selectionArgs[1]);
+                //return AppDatabase.getDatabase(getContext()).stopTimeDao().getRouteDetail(selectionArgs[0],selectionArgs[1]);
             default:
                 throw new IllegalArgumentException(
                         "Unsupported URI: " + uri);

@@ -33,7 +33,7 @@ public class LoadingActivity extends AppCompatActivity {
         progressBar.setScaleY(3f);
         textViewProgressBar = findViewById(R.id.textViewLoadingBar);
 
-
+        /*
         final AppDatabase appDatabase = AppDatabase.getDatabase(this);
         Thread thread = new Thread(new Runnable() {
             @Override
@@ -50,6 +50,7 @@ public class LoadingActivity extends AppCompatActivity {
             }
         });
         thread.start();
+        */
 
         /*
         if (StarService.isNetworkAvailable(this)) {
@@ -58,7 +59,6 @@ public class LoadingActivity extends AppCompatActivity {
             startService(intent);
         }
         */
-
     }
 
     public static LoadingActivity getInstance() {
