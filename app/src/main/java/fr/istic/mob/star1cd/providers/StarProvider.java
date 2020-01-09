@@ -9,6 +9,7 @@ import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.sqlite.db.SimpleSQLiteQuery;
 
 import fr.istic.mob.star1cd.database.AppDatabase;
 import fr.istic.mob.star1cd.database.StarContract;
@@ -35,7 +36,7 @@ public class StarProvider extends ContentProvider {
 
     static {
         URI_MATCHER.addURI(StarContract.AUTHORITY, StarContract.BusRoutes.CONTENT_PATH, ALL_BUS_ROUTES);
-        //URI_MATCHER.addURI(StarContract.AUTHORITY, StarContract.BusRoutes.CONTENT_PATH + "/#", BUS_ROUTE_BY_ID);
+        URI_MATCHER.addURI(StarContract.AUTHORITY, StarContract.BusRoutes.CONTENT_PATH + "/#", BUS_ROUTE_BY_ID);
         URI_MATCHER.addURI(StarContract.AUTHORITY, StarContract.Stops.CONTENT_PATH, BUS_ROUTE_STOPS);
         URI_MATCHER.addURI(StarContract.AUTHORITY, StarContract.StopTimes.CONTENT_PATH, STOP_TIMES_AT_STOP);
         //URI_MATCHER.addURI(StarContract.AUTHORITY, StarContract.Stops.CONTENT_PATH, ROUTE_DETAIL);
@@ -66,12 +67,22 @@ public class StarProvider extends ContentProvider {
             case STOP_TIMES_AT_STOP:
                 // selectionArgs[0] : stop_id
                 // selectionArgs[1] : route_id
-                // selectionArgs[2] : endDate
-                // selectionArgs[3] : arrivalTime
-                return AppDatabase.getDatabase(getContext()).stopTimeDao().findStopTimesAtStop(selectionArgs[0],
-                        selectionArgs[1],
-                        Long.valueOf(selectionArgs[2]),
-                        selectionArgs[3]);
+                // selectionArgs[2] : direction_id
+                // selectionArgs[3] : dayOfTheWeek
+                // selectionArgs[4] : endDate
+                // selectionArgs[5] : arrivalTime
+
+                String query = "SELECT * " +
+                        "FROM StopTime " +
+                        "INNER JOIN Trip ON  Trip._id = StopTime.trip_id " +
+                        "INNER JOIN Calendar ON Calendar._id = Trip.service_id " +
+                        "WHERE StopTime.stop_id = " + selectionArgs[0] + " " +
+                        "AND Trip.route_id = " + selectionArgs[1] + " " +
+                        "AND Trip.direction_id = " + selectionArgs[2] + " " +
+                        "AND 1 = " + selectionArgs[3] + " " +
+                        "AND Calendar.end_date > " + selectionArgs[4] + " " +
+                        "AND StopTime.arrival_time >= '" + selectionArgs[5] + "'";
+                return AppDatabase.getDatabase(getContext()).stopTimeDao().findStopTimes(new SimpleSQLiteQuery(query));
             //case ROUTE_DETAIL:
                 // selectionArgs[0] : trip_id
                 // selectionArgs[1] : arrivalTime

@@ -1,6 +1,7 @@
 package fr.istic.mob.star1cd;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.sqlite.db.SimpleSQLiteQuery;
 
 import android.content.Intent;
 import android.database.Cursor;
@@ -33,24 +34,18 @@ public class LoadingActivity extends AppCompatActivity {
         progressBar.setScaleY(3f);
         textViewProgressBar = findViewById(R.id.textViewLoadingBar);
 
-        /*
+
         final AppDatabase appDatabase = AppDatabase.getDatabase(this);
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                Trip trip = appDatabase.tripDao().find(5, 1);
-                Log.i("TRIP", " route id : " + trip.getId());
 
-                Cursor cursor = appDatabase.stopDao().findStops(trip.getId(), 5);
-                while (cursor.moveToNext()) {
-                    int c = cursor.getColumnIndex("stop_name");
-                    Log.i("Stops ", cursor.getString(1));
-                }
+                //Cursor cursor = appDatabase.stopTimeDao().findStopTimesAtStop("1024", "1", Integer.valueOf("20200109"), "thursday", "12:00:00");
+                //Log.i("Stoptimes ", cursor.getCount() + " ");
 
             }
         });
         thread.start();
-        */
 
         /*
         if (StarService.isNetworkAvailable(this)) {
