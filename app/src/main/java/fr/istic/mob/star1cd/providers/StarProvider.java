@@ -39,7 +39,7 @@ public class StarProvider extends ContentProvider {
         URI_MATCHER.addURI(StarContract.AUTHORITY, StarContract.BusRoutes.CONTENT_PATH + "/#", BUS_ROUTE_BY_ID);
         URI_MATCHER.addURI(StarContract.AUTHORITY, StarContract.Stops.CONTENT_PATH, BUS_ROUTE_STOPS);
         URI_MATCHER.addURI(StarContract.AUTHORITY, StarContract.StopTimes.CONTENT_PATH, STOP_TIMES_AT_STOP);
-        //URI_MATCHER.addURI(StarContract.AUTHORITY, StarContract.Stops.CONTENT_PATH, ROUTE_DETAIL);
+        URI_MATCHER.addURI(StarContract.AUTHORITY, StarContract.RouteDetails.CONTENT_PATH, ROUTE_DETAIL);
     }
 
     @Override
@@ -71,7 +71,6 @@ public class StarProvider extends ContentProvider {
                 // selectionArgs[3] : dayOfTheWeek
                 // selectionArgs[4] : endDate
                 // selectionArgs[5] : arrivalTime
-
                 String query = "SELECT * " +
                         "FROM StopTime " +
                         "INNER JOIN Trip ON  Trip._id = StopTime.trip_id " +
@@ -81,12 +80,13 @@ public class StarProvider extends ContentProvider {
                         "AND Trip.direction_id = " + selectionArgs[2] + " " +
                         "AND 1 = " + selectionArgs[3] + " " +
                         "AND Calendar.end_date > " + selectionArgs[4] + " " +
-                        "AND StopTime.arrival_time >= '" + selectionArgs[5] + "'";
+                        "AND StopTime.arrival_time >= '" + selectionArgs[5] + "' " +
+                        "ORDER BY StopTime.arrival_time ASC";
                 return AppDatabase.getDatabase(getContext()).stopTimeDao().findStopTimes(new SimpleSQLiteQuery(query));
-            //case ROUTE_DETAIL:
+            case ROUTE_DETAIL:
                 // selectionArgs[0] : trip_id
                 // selectionArgs[1] : arrivalTime
-                //return AppDatabase.getDatabase(getContext()).stopTimeDao().getRouteDetail(selectionArgs[0],selectionArgs[1]);
+                return AppDatabase.getDatabase(getContext()).stopTimeDao().getRouteDetail(selectionArgs[0], selectionArgs[1]);
             default:
                 throw new IllegalArgumentException(
                         "Unsupported URI: " + uri);
@@ -106,7 +106,7 @@ public class StarProvider extends ContentProvider {
             case STOP_TIMES_AT_STOP:
                 return StarContract.StopTimes.CONTENT_TYPE;
             case ROUTE_DETAIL:
-                return StarContract.StopTimes.CONTENT_TYPE;
+                return StarContract.RouteDetails.CONTENT_TYPE;
             default:
                 return null;
         }

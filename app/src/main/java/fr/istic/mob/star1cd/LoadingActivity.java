@@ -34,26 +34,11 @@ public class LoadingActivity extends AppCompatActivity {
         progressBar.setScaleY(3f);
         textViewProgressBar = findViewById(R.id.textViewLoadingBar);
 
-
-        final AppDatabase appDatabase = AppDatabase.getDatabase(this);
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                //Cursor cursor = appDatabase.stopTimeDao().findStopTimesAtStop("1024", "1", Integer.valueOf("20200109"), "thursday", "12:00:00");
-                //Log.i("Stoptimes ", cursor.getCount() + " ");
-
-            }
-        });
-        thread.start();
-
-        /*
         if (StarService.isNetworkAvailable(this)) {
             Log.i("StarService", "Network is available");
             Intent intent = new Intent(Intent.ACTION_SYNC, null, this, StarService.class);
             startService(intent);
         }
-        */
     }
 
     public static LoadingActivity getInstance() {

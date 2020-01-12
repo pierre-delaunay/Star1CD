@@ -13,6 +13,7 @@ import androidx.sqlite.db.SimpleSQLiteQuery;
 import java.util.List;
 
 import fr.istic.mob.star1cd.database.model.StopTime;
+
 /**
  * StopTime DAO
  *
@@ -58,6 +59,7 @@ public interface StopTimeDao {
             "WHERE Stop._id = StopTime.stop_id " +
             "AND StopTime.trip_id = Trip._id " +
             "AND Trip._id = :tripId " +
-            "AND StopTime.arrival_time >= :arrivalTime")
+            "AND StopTime.arrival_time >= :arrivalTime " +
+            "ORDER BY StopTime.arrival_time")
     Cursor getRouteDetail(String tripId, String arrivalTime);
 }
