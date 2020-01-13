@@ -30,6 +30,7 @@ public class StarProvider extends ContentProvider {
     private static final int BUS_ROUTE_STOPS = 3;
     private static final int STOP_TIMES_AT_STOP = 4;
     private static final int ROUTE_DETAIL = 5;
+    private static final int SEARCH_BUS_ROUTES = 6;
 
     private static final UriMatcher URI_MATCHER =
             new UriMatcher(UriMatcher.NO_MATCH);
@@ -40,6 +41,7 @@ public class StarProvider extends ContentProvider {
         URI_MATCHER.addURI(StarContract.AUTHORITY, StarContract.Stops.CONTENT_PATH, BUS_ROUTE_STOPS);
         URI_MATCHER.addURI(StarContract.AUTHORITY, StarContract.StopTimes.CONTENT_PATH, STOP_TIMES_AT_STOP);
         URI_MATCHER.addURI(StarContract.AUTHORITY, StarContract.RouteDetails.CONTENT_PATH, ROUTE_DETAIL);
+        URI_MATCHER.addURI(StarContract.AUTHORITY, StarContract.Search.CONTENT_PATH, SEARCH_BUS_ROUTES);
     }
 
     @Override
@@ -87,6 +89,10 @@ public class StarProvider extends ContentProvider {
                 // selectionArgs[0] : trip_id
                 // selectionArgs[1] : arrivalTime
                 return AppDatabase.getDatabase(getContext()).stopTimeDao().getRouteDetail(selectionArgs[0], selectionArgs[1]);
+            case SEARCH_BUS_ROUTES:
+                // s : stop_name
+                return AppDatabase.getDatabase(getContext()).busRouteDao().findBusRoutesAtStop(s);
+
             default:
                 throw new IllegalArgumentException(
                         "Unsupported URI: " + uri);
@@ -107,6 +113,8 @@ public class StarProvider extends ContentProvider {
                 return StarContract.StopTimes.CONTENT_TYPE;
             case ROUTE_DETAIL:
                 return StarContract.RouteDetails.CONTENT_TYPE;
+            case SEARCH_BUS_ROUTES:
+                return StarContract.Search.CONTENT_TYPE;
             default:
                 return null;
         }

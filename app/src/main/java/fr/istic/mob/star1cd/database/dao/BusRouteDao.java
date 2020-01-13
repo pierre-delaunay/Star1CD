@@ -55,4 +55,13 @@ public interface BusRouteDao {
 
     @Query("SELECT route_color FROM busroute WHERE route_short_name = :name")
     String findRouteColor(String name);
+
+    @Query("SELECT DISTINCT BusRoute.*, Stop.stop_name " +
+            "FROM BusRoute " +
+            "INNER JOIN Trip ON BusRoute._id = Trip.route_id " +
+            "INNER JOIN StopTime ON Trip._id = StopTime.trip_id " +
+            "INNER JOIN Stop ON Stop._id = StopTime.stop_id " +
+            "WHERE Stop.stop_name LIKE '%' || :stopName || '%'" +
+            "ORDER BY Stop.stop_name")
+    Cursor findBusRoutesAtStop(String stopName);
 }
