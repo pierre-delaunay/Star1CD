@@ -17,12 +17,14 @@ import fr.istic.mob.star1cd.database.StarContract;
         @ForeignKey(
                 entity = BusRoute.class,
                 parentColumns = StarContract.BusRoutes.BusRouteColumns._ID,
-                childColumns = StarContract.Trips.TripColumns.ROUTE_ID
+                childColumns = StarContract.Trips.TripColumns.ROUTE_ID,
+                onDelete = ForeignKey.CASCADE
         ),
         @ForeignKey(
                 entity = Calendar.class,
                 parentColumns = StarContract.Calendar.CalendarColumns._ID,
-                childColumns = StarContract.Trips.TripColumns.SERVICE_ID
+                childColumns = StarContract.Trips.TripColumns.SERVICE_ID,
+                onDelete = ForeignKey.CASCADE
         )
 })
 public class Trip {

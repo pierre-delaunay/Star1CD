@@ -23,8 +23,6 @@ import fr.istic.mob.star1cd.database.model.Trip;
  */
 public class StarProvider extends ContentProvider {
 
-    // https://stackoverflow.com/questions/46804775/room-persistence-library-and-content-provider
-
     private static final int ALL_BUS_ROUTES = 1;
     private static final int BUS_ROUTE_BY_ID = 2;
     private static final int BUS_ROUTE_STOPS = 3;
