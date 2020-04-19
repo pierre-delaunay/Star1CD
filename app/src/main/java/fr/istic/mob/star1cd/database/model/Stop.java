@@ -3,6 +3,7 @@ package fr.istic.mob.star1cd.database.model;
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 import fr.istic.mob.star1cd.database.StarContract;
@@ -13,7 +14,7 @@ import fr.istic.mob.star1cd.database.StarContract;
  * @author Charly C, Pierre D
  * @version 1.0.1
  */
-@Entity
+@Entity(indices = {@Index(value = {StarContract.Stops.StopColumns._ID}, unique = true)})
 public class Stop {
 
     @PrimaryKey

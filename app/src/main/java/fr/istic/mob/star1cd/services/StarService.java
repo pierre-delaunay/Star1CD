@@ -398,7 +398,7 @@ public class StarService extends IntentService {
                 break;
             case "calendar.txt":
                 Calendar calendar = new Calendar();
-                calendar.setId(Integer.valueOf(line[0]));
+                calendar.setId(Long.valueOf(line[0]));
                 calendar.setMonday(Integer.valueOf(line[1]));
                 calendar.setTuesday(Integer.valueOf(line[2]));
                 calendar.setWednesday(Integer.valueOf(line[3]));
@@ -413,7 +413,7 @@ public class StarService extends IntentService {
             case "stop_times.txt":
                 StopTime stopTime = new StopTime();
                 stopTime.setId(id);
-                stopTime.setTripId(Integer.valueOf(line[0]));
+                stopTime.setTripId(Long.valueOf(line[0]));
                 stopTime.setArrivalTime(line[1]);
                 stopTime.setDepartureTime(line[2]);
                 stopTime.setStopId(line[3]);
@@ -433,9 +433,9 @@ public class StarService extends IntentService {
             case "trips.txt":
                 Trip trip = new Trip();
                 //trip.setId(id);
-                trip.setId(Integer.valueOf(line[2]));
+                trip.setId(Long.valueOf(line[2]));
                 trip.setRouteId(Integer.valueOf(line[0]));
-                trip.setServiceId(Integer.valueOf(line[1]));
+                trip.setServiceId(Long.valueOf(line[1]));
                 trip.setTripHeadsign(line[3]);
                 trip.setDirectionId(line[5]);
                 trip.setBlockId(line[6]);

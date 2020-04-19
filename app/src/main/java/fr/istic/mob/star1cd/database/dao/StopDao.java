@@ -43,7 +43,7 @@ public interface StopDao {
             "AND Trip.route_id = :routeId " +
             "AND Trip._id = :tripId " +
             "ORDER BY StopTime.arrival_time")
-    Cursor findStops(int tripId, int routeId);
+    Cursor findStops(long tripId, int routeId);
 
     @RawQuery
     List<Stop> getStops(SupportSQLiteQuery query);

@@ -3,6 +3,7 @@ package fr.istic.mob.star1cd.database.model;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 import fr.istic.mob.star1cd.database.StarContract;
@@ -26,16 +27,16 @@ import fr.istic.mob.star1cd.database.StarContract;
                 childColumns = StarContract.Trips.TripColumns.SERVICE_ID,
                 onDelete = ForeignKey.CASCADE
         )
-})
+}, indices = {@Index(value = {StarContract.Trips.TripColumns._ID}, unique = true)})
 public class Trip {
     
     @PrimaryKey
     @ColumnInfo(name = StarContract.Trips.TripColumns._ID)
-    private int id;
+    private long id;
     @ColumnInfo(name = StarContract.Trips.TripColumns.ROUTE_ID)
     private int routeId;
     @ColumnInfo(name = StarContract.Trips.TripColumns.SERVICE_ID)
-    private int serviceId;
+    private long serviceId;
     @ColumnInfo(name = StarContract.Trips.TripColumns.HEADSIGN)
     private String tripHeadsign;
     @ColumnInfo(name = StarContract.Trips.TripColumns.DIRECTION_ID)
@@ -45,11 +46,11 @@ public class Trip {
     @ColumnInfo(name = StarContract.Trips.TripColumns.WHEELCHAIR_ACCESSIBLE)
     private int wheelchairAccessible;
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -61,11 +62,11 @@ public class Trip {
         this.routeId = routeId;
     }
 
-    public int getServiceId() {
+    public long getServiceId() {
         return serviceId;
     }
 
-    public void setServiceId(int serviceId) {
+    public void setServiceId(long serviceId) {
         this.serviceId = serviceId;
     }
 

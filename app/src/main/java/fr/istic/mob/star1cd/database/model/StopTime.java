@@ -3,6 +3,7 @@ package fr.istic.mob.star1cd.database.model;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 import fr.istic.mob.star1cd.database.StarContract;
@@ -33,7 +34,7 @@ public class StopTime {
     @ColumnInfo(name = StarContract.StopTimes.StopTimeColumns._ID)
     private int id;
     @ColumnInfo(name = StarContract.StopTimes.StopTimeColumns.TRIP_ID)
-    private int tripId;
+    private long tripId;
     @ColumnInfo(name = StarContract.StopTimes.StopTimeColumns.ARRIVAL_TIME)
     private String arrivalTime;
     @ColumnInfo(name = StarContract.StopTimes.StopTimeColumns.DEPARTURE_TIME)
@@ -54,11 +55,11 @@ public class StopTime {
         this.id = id;
     }
 
-    public int getTripId() {
+    public long getTripId() {
         return tripId;
     }
 
-    public void setTripId(int tripId) {
+    public void setTripId(long tripId) {
         this.tripId = tripId;
     }
 

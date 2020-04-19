@@ -1,7 +1,9 @@
 package fr.istic.mob.star1cd.database.model;
 
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 import fr.istic.mob.star1cd.database.StarContract;
@@ -12,12 +14,12 @@ import fr.istic.mob.star1cd.database.StarContract;
  * @author Charly C, Pierre D
  * @version 1.0.1
  */
-@Entity
+@Entity(indices = {@Index(StarContract.Calendar.CalendarColumns._ID)})
 public class Calendar {
 
     @PrimaryKey
     @ColumnInfo(name = StarContract.Calendar.CalendarColumns._ID)
-    private int id;
+    private long id;
     @ColumnInfo(name = StarContract.Calendar.CalendarColumns.MONDAY)
     private int monday;
     @ColumnInfo(name = StarContract.Calendar.CalendarColumns.TUESDAY)
@@ -40,11 +42,11 @@ public class Calendar {
     public Calendar() {
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
